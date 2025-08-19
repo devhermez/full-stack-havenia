@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "types": ["node"],
+
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "verbatimModuleSyntax": false,
+    "isolatedModules": true,
+
+    "sourceMap": true
+    /* If you really want d.ts outputs, uncomment:
+    "declaration": true,
+    "declarationMap": true
+    */
+  },
+  "include": ["src"]
+}

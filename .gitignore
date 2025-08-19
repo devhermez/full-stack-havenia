@@ -1,0 +1,60 @@
+cat > .gitignore << 'EOF'
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env (root + apps)
+.env
+.env.*
+!.env.example
+havenia-api/.env
+havenia-api/.env.*
+!havenia-api/.env.example
+havenia/.env
+havenia/.env.*
+!havenia/.env.example
+
+# Logs
+logs/
+*.log
+log/
+debug.log
+error.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Build outputs
+dist/
+out/
+.next/
+build/
+.cache/
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+jest-html-reporters-*.html
+playwright-report/
+test-results/
+
+# Misc
+*.swp
+*.swo
+
+# Local DB / storage
+*.sqlite
+*.db
+
+# Cloud temp
+.aws/
+.terraform/
+EOF
