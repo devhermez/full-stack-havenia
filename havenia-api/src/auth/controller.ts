@@ -6,6 +6,7 @@ import { hashPassword, verifyPassword, signJwt } from "./util";
 import type { AuthedRequest } from "./middleware";
 import { validate } from "../lib/validation";
 
+
 const RegisterSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.email("Invalid email"),
@@ -13,7 +14,7 @@ const RegisterSchema = z.object({
 });
 
 const LoginSchema = z.object({
-  email: z.string().email("Invalid email"),
+  email: z.email("Invalid email"),
   password: z.string().min(1, "Password is required"),
 });
 

@@ -7,10 +7,10 @@ const AddressBody = z.object({
   line1: z.string().min(1),
   line2: z.string().optional().nullable(),
   city: z.string().min(1),
-  province: z.string().min(1),
+  province: z.string().min(1),         // <- province (matches DB)
   postal_code: z.string().min(1),
-  country: z.string().min(1),
-  is_default: z.boolean().optional(), // if true on create, make it sole default
+  country: z.string().min(1),          // <- country (matches DB)
+  is_default: z.boolean().optional(),
 });
 
 const IdParam = z.object({ id: z.uuid() });
@@ -65,7 +65,7 @@ export async function createAddress(req: AuthedRequest, res: Response) {
     );
 
     await commit(tx);
-    return res.status(201).json({ id: rows[0].id });
+    return res.status(201).json({ address: { id: rows[0].id } });
   } catch (e: any) {
     await rollback(tx);
     return res.status(500).json({ error: { message: e.message } });
@@ -91,7 +91,6 @@ export async function updateAddress(req: AuthedRequest, res: Response) {
       );
     }
 
-    // Only update provided fields
     const { rows } = await query(
       `UPDATE delivery_addresses
        SET

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { register, login, updateMe } from "./controller";
+import { register, login, updateMe, me } from "./controller";
 import { requireAuth } from "./middleware";
 
 const router = Router();
@@ -41,6 +41,7 @@ router.post("/register", register);
  *             schema: { $ref: "#/components/schemas/Error" }
  */
 router.post("/login", login);
-router.get("/me", requireAuth, updateMe);
+router.put("/me", requireAuth, updateMe);
+router.get("/me", requireAuth, me); 
 
 export default router;
