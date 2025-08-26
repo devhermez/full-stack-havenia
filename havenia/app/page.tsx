@@ -1,5 +1,5 @@
 // app/page.tsx
-export default function HomePage() {
+export default function LandingPage() {
   return (
     <section className="w-screen min-h-[calc(100vh-64px)] flex items-center justify-center bg-gradient-to-b from-neutral-50 to-white">
       <div className="max-w-3xl px-6 text-center">
@@ -11,7 +11,7 @@ export default function HomePage() {
         </p>
         <div className="mt-6 flex justify-center gap-4">
           <a
-            href="/login"
+            href="/home"
             className="px-6 py-3 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
             Get Started

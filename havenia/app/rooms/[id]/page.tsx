@@ -1,13 +1,13 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { useState } from "react";
 import { useRoom, useCreateReservation } from "@/hooks/rooms";
 
 type Props = { params: { id: string } };
 
 export default function RoomDetailPage({ params }: Props) {
-  const { id } = params;
+  const { id } = useParams<{ id: string }>();
   const sp = useSearchParams();
   const router = useRouter();
 
@@ -37,10 +37,14 @@ export default function RoomDetailPage({ params }: Props) {
         <div className="bg-white rounded-xl shadow p-6 space-y-4">
           <h1 className="text-xl font-semibold">{room.name}</h1>
           <p className="text-sm text-neutral-600">
-            Capacity: {room.capacity} · Price/night: ₱{Number(room.price).toFixed(2)}
+            Capacity: {room.capacity} · Price/night: ₱
+            {Number(room.price).toFixed(2)}
           </p>
 
-          <form onSubmit={reserve} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <form
+            onSubmit={reserve}
+            className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+          >
             <input
               type="date"
               className="border rounded-lg px-3 py-2"
