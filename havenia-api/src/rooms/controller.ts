@@ -63,7 +63,7 @@ export async function listRooms(req: Request, res: Response) {
       // Availability filter: NOT EXISTS overlapping reservation
       const sql = `
   SELECT
-    rm.id, rm.property_id, rm.name, rm.capacity, rm.price, rm.created_at
+    rm.id, rm.property_id, rm.name, rm.capacity, rm.price, rm.created_at, rm.image_url
   FROM rooms rm
   WHERE rm.property_id = :pid::uuid
     AND (:mincap::int IS NULL OR rm.capacity >= :mincap::int)
@@ -94,7 +94,7 @@ export async function listRooms(req: Request, res: Response) {
     } else {
       // No date filter → simple list
       const sql = `
-        SELECT rm.id, rm.property_id, rm.name, rm.capacity, rm.price, rm.created_at
+        SELECT rm.id, rm.property_id, rm.name, rm.capacity, rm.price, rm.created_at, rm.image_url
         FROM rooms rm
         WHERE rm.property_id = :pid::uuid
           AND (:mincap::int IS NULL OR rm.capacity >= :mincap::int)
@@ -321,7 +321,8 @@ export async function cancelMyReservation(req: AuthedRequest, res: Response) {
 
 export async function getRoom(req: Request, res: Response) {
   const parsed = IdParam.safeParse(req.params);
-  if (!parsed.success) return res.status(422).json({ error: z.treeifyError(parsed.error) });
+  if (!parsed.success)
+    return res.status(422).json({ error: z.treeifyError(parsed.error) });
   const { id } = parsed.data;
 
   try {
@@ -337,11 +338,11 @@ export async function getRoom(req: Request, res: Response) {
     );
 
     const room = rows[0];
-    if (!room) return res.status(404).json({ error: { message: "Room not found" } });
+    if (!room)
+      return res.status(404).json({ error: { message: "Room not found" } });
 
     return res.json({ room });
   } catch (e: any) {
     return res.status(500).json({ error: { message: e.message } });
   }
 }
-

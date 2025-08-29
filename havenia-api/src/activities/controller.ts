@@ -10,7 +10,7 @@ const IdParam = z.object({
 });
 
 const ActivitiesQuery = z.object({
-  property_id: z.string().uuid().optional(),
+  property_id: z.uuid().optional(),
   type: z.string().min(1).optional(), // e.g., 'water', 'land', 'wellness'
 });
 
@@ -20,7 +20,7 @@ const SessionsQuery = z.object({
 });
 
 const CreateBookingSchema = z.object({
-  session_id: z.string().uuid(),
+  session_id: z.uuid(),
   // Optional: if you want age/waiver acknowledgement in request body
   participant_age: z.number().int().min(0).optional(),
   acknowledged_waiver: z.boolean().optional(),
@@ -35,7 +35,7 @@ export async function listActivities(req: Request, res: Response) {
     const { property_id, type } = parsed.data;
     const sql = `
       SELECT
-        a.id, a.property_id, a.name, a.type, a.description, a.duration_mins,
+        a.id, a.property_id, a.name, a.type, a.description, a.duration_mins, a.image_url,
         a.base_price, a.min_age, a.requires_waiver, a.created_at
       FROM activities a
       WHERE (:p1::uuid IS NULL OR a.property_id = :p1::uuid)
@@ -173,20 +173,22 @@ export async function createBooking(req: AuthedRequest, res: Response) {
     // 5) Price calculation (override > base)
     const price = Number(session.price_override ?? session.base_price);
 
+    const total = price;
+
     // 6) Create booking as pending
     const { rows: bookingRows } = await query<{ id: string }>(
       `
       INSERT INTO activity_bookings
-        (activity_id, session_id, user_id, status, price)
+        (activity_id, session_id, user_id, status, total, payment_status, created_at)
       VALUES
-        (:aid::uuid, :sid::uuid, :uid::uuid, 'pending', :price)
+        (:aid::uuid, :sid::uuid, :uid::uuid, 'pending', :total, 'unpaid', now())
       RETURNING id
       `,
       [
         { name: "aid", value: activity_id },
         { name: "sid", value: session_id },
         { name: "uid", value: user_id },
-        { name: "price", value: price },
+        { name: "total", value: total },
       ],
       tx
     );
@@ -216,7 +218,7 @@ export async function listMyActivityBookings(req: AuthedRequest, res: Response) 
       SELECT
         b.id,
         b.status,
-        b.price,
+        b.total AS price,
         b.created_at,
         s.start_ts,
         s.end_ts,
@@ -234,6 +236,7 @@ export async function listMyActivityBookings(req: AuthedRequest, res: Response) 
     );
     return res.json({ data: rows });
   } catch (e: any) {
+    console.error("listMyActivityBookings error:", e);
     return res.status(500).json({ error: { message: e.message } });
   }
 }
@@ -290,6 +293,7 @@ export async function getActivityDetail(req: Request, res: Response) {
         a.base_price,
         a.min_age,
         a.requires_waiver,
+        a.image_url,
         a.created_at,
         -- how many future sessions are scheduled
         COALESCE((

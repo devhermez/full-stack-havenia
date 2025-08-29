@@ -60,10 +60,11 @@ export default function ProfilePage() {
   if (!mounted) return null;
 
   return (
-    <>
+    <div className="profile-container w-screen min-h-screen bg-gray-400 text-white">
       <ClientNav />
-      <main className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-6">Your Profile</h1>
+      <main className="max-w-2xl mx-auto px-4 py-8 w-full">
+        <h1 className="text-3xl font-semibold mb-2">Your Profile</h1>
+        <p className="mb-4 text-md text-gray-200">This is your space — update your details, change your password, and keep everything ready for your next adventure.</p>
 
         {loading && (
           <div className="animate-pulse space-y-3">
@@ -76,35 +77,45 @@ export default function ProfilePage() {
         {!loading && err && <p className="text-red-600">{err}</p>}
 
         {!loading && user && (
-          <div className="bg-white rounded-2xl shadow p-6 space-y-4">
+          <div className="bg-white text-black rounded-2xl shadow p-6 space-y-4 w-full flex flex-col gap-2">
             <div>
-              <p className="text-sm text-gray-500">Name</p>
-              <p className="text-lg font-medium">{user.name}</p>
+              <p className="text-sm text-gray-600">Name</p>
+              <p className="text-md font-medium">{user.name}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="text-lg font-medium">{user.email}</p>
+              <p className="text-sm text-gray-600">Email</p>
+              <p className="text-md font-medium">{user.email}</p>
             </div>
             {user.role && (
               <div>
-                <p className="text-sm text-gray-500">Role</p>
-                <span className="inline-block rounded-lg border px-2 py-1 text-sm">
+                <p className="text-sm text-gray-600">Role</p>
+                <span className="inline-block text-md">
                   {user.role}
                 </span>
               </div>
             )}
             {user.createdAt && (
               <div>
-                <p className="text-sm text-gray-500">Member since</p>
-                <p className="text-lg font-medium">
+                <p className="text-sm text-gray-600">Member since</p>
+                <p className="text-md font-medium">
                   {new Date(user.createdAt).toLocaleDateString()}
                 </p>
               </div>
             )}
-            <Link href="/addresses" className="hover:underline">Addresses</Link>
+            <div className="addresses-section flex flex-col gap-1">
+              <p className="text-sm text-gray-600">Addresses</p>
+              <p className="text-sm text-gray-400">Your safety is our concern, please head to addresses to view/change your registered location.</p>
+              <Link href="/me/addresses" className="hover:underline rounded-lg border p-2 w-50 text-sm text-center">Change Addresses</Link>
+            </div>
             
 
-            <div className="pt-2">
+            <div className=" w-full flex justify-between">
+              <button
+                onClick={() => router.push("/me/profile/edit")}
+                className="rounded-lg border px-4 py-2"
+              >
+                Edit
+              </button>
               <button
                 onClick={() => {
                   clearToken();
@@ -114,17 +125,12 @@ export default function ProfilePage() {
               >
                 Sign out
               </button>
-              <button
-                onClick={() => router.push("/me/profile/edit")}
-                className="rounded-lg border px-4 py-2"
-              >
-                Edit
-              </button>
+              
             </div>
             
           </div>
         )}
       </main>
-    </>
+    </div>
   );
 }

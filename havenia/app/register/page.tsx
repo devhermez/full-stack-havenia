@@ -46,6 +46,7 @@ export default function RegisterPage() {
     <main className="flex items-center justify-center min-h-screen px-4">
       <div className="bg-white rounded-2xl shadow p-6 space-y-4 max-w-sm w-full">
         <h1 className="text-xl font-semibold">Create Account</h1>
+        <p className="text-sm text-gray-400">Enter your details below to sign up and start exploring Havenia. </p>
 
         <form onSubmit={onSubmit} className="space-y-3">
           <input

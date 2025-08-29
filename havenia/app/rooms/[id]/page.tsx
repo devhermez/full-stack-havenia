@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter, useParams } from "next/navigation";
 import { useState } from "react";
 import { useRoom, useCreateReservation } from "@/hooks/rooms";
+import ClientNav from "@/components/ClientNav";
 
 type Props = { params: { id: string } };
 
@@ -30,8 +31,10 @@ export default function RoomDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="w-screen max-w-none px-4 py-6">
-      {isLoading && <p>Loading…</p>}
+    <div className="w-screen bg-amber-800">
+      <ClientNav />
+      <div className="px-4 py-28">
+        {isLoading && <p>Loading…</p>}
       {error && <p className="text-red-600">Failed to load room</p>}
       {room && (
         <div className="bg-white rounded-xl shadow p-6 space-y-4">
@@ -72,6 +75,8 @@ export default function RoomDetailPage({ params }: Props) {
           )}
         </div>
       )}
+      </div>
+      
     </div>
   );
 }

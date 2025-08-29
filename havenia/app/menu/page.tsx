@@ -65,10 +65,10 @@ export default function MenuPage() {
   }, [propertyId, category]);
 
   return (
-    <>
+    <div className="menu-container w-screen min-h-screen bg-amber-700">
       <ClientNav />
       <main className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-4">Menu</h1>
+        <h1 className="text-2xl font-semibold mb-4 text-white">Menu</h1>
 
         {/* Filters */}
         <form
@@ -76,28 +76,30 @@ export default function MenuPage() {
             e.preventDefault();
             router.replace(`/menu${params ? `?${params}` : ""}`);
           }}
-          className="mb-6 grid gap-3 sm:grid-cols-3"
+          className="mb-6 grid gap-3 sm:grid-cols-3 text-black"
         >
           <input
-            className="border rounded-lg px-3 py-2"
-            placeholder="Property ID (uuid)"
+            className=" rounded-lg px-3 py-2 bg-white"
+            placeholder="Property ID (uuid) "
             value={propertyId}
             onChange={(e) => setPropertyId(e.target.value)}
           />
           <input
-            className="border rounded-lg px-3 py-2"
+            className="rounded-lg px-3 py-2 bg-white"
             placeholder="Category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
-          <button className="rounded-lg border px-4 py-2">Apply Filters</button>
+          <button className="rounded-lg px-4 py-2 bg-white">
+            Apply Filters
+          </button>
         </form>
 
         {loading && <p>Loading…</p>}
         {!loading && err && <p className="text-red-600">{err}</p>}
 
         {!loading && !err && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 text-black">
             {items.map((it) => (
               <Link
                 key={it.id}
@@ -106,14 +108,12 @@ export default function MenuPage() {
               >
                 <div className="flex items-start justify-between">
                   <h3 className="font-semibold">{it.name}</h3>
-                  <span className="text-sm">{Intl.NumberFormat().format(it.price)}</span>
+                  <span className="text-sm">
+                    {Intl.NumberFormat().format(it.price)}
+                  </span>
                 </div>
-                {it.category && (
-                  <p className="text-sm text-gray-500 mt-1">{it.category}</p>
-                )}
-                <p className="text-sm text-gray-700 mt-2 line-clamp-2">
-                  {it.description}
-                </p>
+                {it.category && <p className="text-sm  mt-1">{it.category}</p>}
+                <p className="text-sm mt-2 line-clamp-2">{it.description}</p>
                 {!it.in_stock && (
                   <span className="mt-2 inline-block text-xs rounded bg-gray-200 px-2 py-0.5">
                     Out of stock
@@ -127,6 +127,6 @@ export default function MenuPage() {
           </div>
         )}
       </main>
-    </>
+    </div>
   );
 }

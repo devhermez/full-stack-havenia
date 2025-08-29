@@ -1,5 +1,7 @@
+// app/me/bookings/page.tsx
 "use client";
 
+import { useEffect, useState } from "react";
 import RequireAuth from "@/components/RequireAuth";
 import { useCancelMyBooking, useMyActivityBookings } from "@/hooks/activities";
 
@@ -12,23 +14,30 @@ export default function MyBookingsPage() {
 }
 
 function Content() {
-  const { data, isLoading, error } = useMyActivityBookings();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const { data, isLoading, error } = useMyActivityBookings({ enabled: mounted });
   const cancelMut = useCancelMyBooking();
 
+  // Render a stable shell during SSR and before mount
+  if (!mounted) return <p className="p-6">Loading…</p>;
   if (isLoading) return <p className="p-6">Loading…</p>;
   if (error) return <p className="p-6 text-red-600">Failed to load.</p>;
 
   return (
     <div className="w-screen px-6 py-8">
       <h1 className="text-2xl font-semibold mb-6">My Activity Bookings</h1>
-
       {data && data.length > 0 ? (
         <ul className="space-y-3">
           {data.map((b) => (
             <li key={b.id} className="border rounded p-4 bg-white flex items-center justify-between">
               <div className="text-sm">
                 <div className="font-medium">{b.activity_name}</div>
-                <div className="text-neutral-600">{new Date(b.start_ts).toLocaleString()}</div>
+                {/* Now safe to format dates; we’re on the client */}
+                <div className="text-neutral-600">
+                  {new Date(b.start_ts).toLocaleString()}
+                </div>
                 <div className="mt-1 text-xs">
                   Status: {b.status} · Price:{" "}
                   {Number(b.price).toLocaleString(undefined, { style: "currency", currency: "USD" })}

@@ -109,23 +109,23 @@ export default function EditProfilePage() {
   if (!mounted) return null;
 
   return (
-    <>
+    <div className="w-screen min-h-screen bg-gray-600 text-white">
       <ClientNav />
       <main className="max-w-md mx-auto px-4 py-8">
         <h1 className="text-2xl font-semibold mb-6">Edit Profile</h1>
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600">Email</label>
+            <label className="block text-sm">Email</label>
             <input
-              className="w-full border rounded-lg px-3 py-2 bg-gray-50"
+              className="w-full border rounded-lg px-3 py-2 bg-gray-50 text-gray-500"
               value={email}
               readOnly
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-600">Name</label>
+            <label className="block text-sm">Name</label>
             <input
-              className="w-full border rounded-lg px-3 py-2"
+              className="w-full border rounded-lg px-3 py-2 bg-white text-gray-500"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
@@ -133,11 +133,9 @@ export default function EditProfilePage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm text-gray-600">
-                Current Password
-              </label>
+              <label className="block text-sm">Current Password</label>
               <input
-                className="w-full border rounded-lg px-3 py-2"
+                className="w-full border rounded-lg px-3 py-2  bg-white text-gray-500"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 type="password"
@@ -145,11 +143,9 @@ export default function EditProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-600">
-                New Password
-              </label>
+              <label className="block text-sm">New Password</label>
               <input
-                className="w-full border rounded-lg px-3 py-2"
+                className="w-full border rounded-lg px-3 py-2  bg-white text-gray-500"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 type="password"
@@ -166,24 +162,24 @@ export default function EditProfilePage() {
           {err && <p className="text-red-600 text-sm">{err}</p>}
           {ok && <p className="text-green-600 text-sm">Profile updated!</p>}
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-between mt-8">
             <button
               type="submit"
               disabled={loading || passwordPairInvalid}
-              className="px-4 py-2 rounded-lg bg-black text-white disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-green-700 disabled:opacity-50"
             >
               {loading ? "Saving…" : "Save changes"}
             </button>
             <button
               type="button"
               onClick={() => router.push("/profile")}
-              className="px-4 py-2 rounded-lg border"
+              className="px-4 py-2 rounded-lg border-black bg-black"
             >
               Cancel
             </button>
           </div>
         </form>
       </main>
-    </>
+    </div>
   );
 }

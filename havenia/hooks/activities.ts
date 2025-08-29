@@ -2,6 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { getToken } from "@/lib/auth";
 
 /** ===== Types that match your controller ===== */
 
@@ -17,6 +18,7 @@ export type Activity = {
   requires_waiver: boolean;
   created_at: string;
   upcoming_sessions?: number;
+  image_url?: string;
   next_session?: {
     id: string;
     start_ts: string;
@@ -86,14 +88,26 @@ export const useActivitySessions = (id: string, params?: { from?: string; to?: s
   });
 
 // GET /activities/me/bookings
-export const useMyActivityBookings = () =>
-  useQuery({
+export const useMyActivityBookings = (opts?: { enabled?: boolean }) => {
+  const token = getToken(); // client-only
+  const enabled = (opts?.enabled ?? true) && !!token;
+
+  return useQuery({
     queryKey: ["me", "bookings"],
+    enabled,                                // <-- don’t run on server / before mount
     queryFn: async () => {
-      const { data } = await api.get<{ data: BookingMine[] }>("/activities/me/bookings");
+      const { data } = await api.get<{ data: BookingMine[] }>(
+        "/activities/me/bookings",
+        { headers: { "Cache-Control": "no-cache" } }
+      );
       return data.data;
     },
+    retry: (count, err: any) => {
+      const s = err?.response?.status;
+      return s && s >= 400 && s < 500 ? false : count < 3;
+    },
   });
+};
 
 /** ===== Mutations ===== */
 

@@ -40,9 +40,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow p-6 space-y-4 max-w-sm mx-auto">
-      <h1 className="text-xl font-semibold">Login</h1>
-      <form onSubmit={onSubmit} className="space-y-3">
+    <div className="w-screen min-h-screen bg-white rounded-2xl shadow p-6 space-y-4 max-w-sm mx-auto flex flex-col justify-center">
+      
+      <form onSubmit={onSubmit} className="space-y-3 border p-4 rounded-2xl">
+        <h1 className="text-xl font-semibold">Login</h1>
+        <p className="text-sm text-gray-400">Enter your credentials to sign in and continue your Havenia journey.</p>
         <input
           className="w-full border rounded-lg px-3 py-2"
           value={email}
@@ -63,10 +65,16 @@ export default function LoginPage() {
         {err && <p className="text-red-600 text-sm">{err}</p>}
         <button
           disabled={loading}
-          className="px-4 py-2 rounded-lg bg-black text-white disabled:opacity-50"
+          className="px-4 py-2 rounded-lg bg-black text-white disabled:opacity-50 text-sm"
         >
           {loading ? "Signing in…" : "Sign in"}
         </button>
+        <p className="text-sm text-gray-600">
+          Don't have an account?{" "}
+          <a href="/login" className="text-blue-600 hover:underline">
+            Register Now!
+          </a>
+        </p>
       </form>
     </div>
   );

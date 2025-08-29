@@ -10,8 +10,8 @@ import IslandSync from "@/components/IslandSync";
 
 export default function HomePage() {
   return (
-    <div className="home-container w-screen min-h-screen bg-amber-950">
-      <div className="home-hero bg-right bg-[url('/havenia-bg.JPG')] bg-black/40 bg-blend-overlay">
+    <div className="home-container w-screen min-h-scree">
+      <div className="home-hero bg-[url('/havenia-bg.JPG')] bg-black/40 bg-blend-overlay">
         <ClientNav />
         <Hero />
         <IslandSync />
