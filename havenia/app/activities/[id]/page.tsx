@@ -1,3 +1,4 @@
+// app/activities/[id]/page.tsx
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
@@ -15,14 +16,12 @@ export default function ActivityDetailPage() {
   const router = useRouter();
 
   const { data: activity, isLoading: loadingA, error: errA } = useActivity(id);
-  const {
-    data: sessions,
-    isLoading: loadingS,
-    error: errS,
-  } = useActivitySessions(id);
+  const { data: sessions, isLoading: loadingS, error: errS } = useActivitySessions(id);
   const createBooking = useCreateBooking(id);
 
-  const [selectedSession, setSelectedSession] = useState<string>("");
+  const [selectedSession, setSelectedSession] = useState("");
+  const [ackWaiver, setAckWaiver] = useState(false);
+  const [age, setAge] = useState<string>("");
   const authed = useMemo(() => !!getToken(), []);
 
   if (loadingA || loadingS) return <p className="p-6">Loading…</p>;
@@ -34,16 +33,24 @@ export default function ActivityDetailPage() {
     currency: "USD",
   });
 
+  const needsWaiver = activity.requires_waiver;
+  const minAge = activity.min_age ?? undefined;
+
+  const canBook =
+    !!selectedSession &&
+    (!needsWaiver || ackWaiver) &&
+    (!minAge || (age !== "" && Number(age) >= minAge)) &&
+    !createBooking.isPending;
+
   async function book() {
-    if (!authed) {
-      router.push("/login");
-      return;
-    }
+    if (!authed) { router.push("/login"); return; }
     if (!selectedSession) return;
 
-    // If you want to pass age/waiver:
-    // { session_id: selectedSession, participant_age: 21, acknowledged_waiver: true }
-    createBooking.mutate({ session_id: selectedSession });
+    createBooking.mutate({
+      session_id: selectedSession,
+      acknowledged_waiver: needsWaiver ? true : undefined,
+      participant_age: age ? Number(age) : undefined,
+    });
   }
 
   return (
@@ -53,16 +60,12 @@ export default function ActivityDetailPage() {
         <section className="bg-white rounded-xl border shadow-sm p-6">
           <h1 className="text-2xl font-semibold">{activity.name}</h1>
           <p className="text-neutral-700 mt-2">{activity.description}</p>
-          <div className="mt-3 flex items-center gap-3 text-sm">
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
             <span>Type: {activity.type}</span>
             <span>Duration: {activity.duration_mins} mins</span>
             <span>Base price: {priceDisplay}</span>
-            {activity.min_age != null && (
-              <span>Min age: {activity.min_age}</span>
-            )}
-            {activity.requires_waiver && (
-              <span className="text-amber-700">Waiver required</span>
-            )}
+            {minAge != null && <span>Min age: {minAge}</span>}
+            {needsWaiver && <span className="text-amber-700">Waiver required</span>}
           </div>
         </section>
 
@@ -75,18 +78,12 @@ export default function ActivityDetailPage() {
                 const price = Number(s.price_override ?? activity.base_price);
                 const seatsLeft = s.capacity - s.booked_count;
                 return (
-                  <li
-                    key={s.id}
-                    className="flex items-center justify-between border rounded px-3 py-2"
-                  >
+                  <li key={s.id} className="flex items-center justify-between border rounded px-3 py-2">
                     <div className="text-sm">
                       <div>{new Date(s.start_ts).toLocaleString()}</div>
                       <div className="text-neutral-600">
                         Seats left: {seatsLeft} / {s.capacity} ·{" "}
-                        {price.toLocaleString(undefined, {
-                          style: "currency",
-                          currency: "USD",
-                        })}
+                        {price.toLocaleString(undefined, { style: "currency", currency: "USD" })}
                       </div>
                     </div>
 
@@ -108,16 +105,47 @@ export default function ActivityDetailPage() {
             <p className="text-sm text-neutral-600">No sessions available.</p>
           )}
 
-          <div className="mt-4">
+          {/* Booking requirements */}
+          <div className="mt-4 space-y-3">
+            {typeof minAge === "number" && (
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-neutral-700">Your age</label>
+                <input
+                  type="number"
+                  min={minAge}
+                  value={age}
+                  onChange={(e) => setAge(e.target.value)}
+                  className="border rounded px-2 py-1 text-sm w-24"
+                />
+              </div>
+            )}
+
+            {needsWaiver && (
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={ackWaiver}
+                  onChange={(e) => setAckWaiver(e.target.checked)}
+                />
+                I acknowledge the liability waiver.
+              </label>
+            )}
+
             <button
-              disabled={!selectedSession || createBooking.isPending}
+              disabled={!canBook}
               onClick={book}
               className="px-4 py-2 rounded bg-black text-white disabled:opacity-50"
             >
               {createBooking.isPending ? "Booking…" : "Book selected session"}
             </button>
 
-            {createBooking.isError && (
+            {/* Surface server error message when present */}
+            {"error" in createBooking && (createBooking as any)?.error?.response?.data?.error?.message && (
+              <p className="text-sm text-red-600 mt-2">
+                {(createBooking as any).error.response.data.error.message}
+              </p>
+            )}
+            {createBooking.isError && !((createBooking as any)?.error?.response?.data?.error?.message) && (
               <p className="text-sm text-red-600 mt-2">Booking failed.</p>
             )}
             {createBooking.isSuccess && (

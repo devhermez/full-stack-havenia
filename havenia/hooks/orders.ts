@@ -46,8 +46,15 @@ export const useMyOrders = () =>
   useQuery({
     queryKey: ["orders", "me"],
     queryFn: async () => {
-      const { data } = await api.get<{ data: Order[] }>("/orders");
-      return data.data;
+      const { data } = await api.get<{ data: any[] }>("/orders");
+      return data.data.map((o) => ({
+        ...o,
+        items: Array.isArray(o.items)
+          ? o.items
+          : typeof o.items === "string"
+          ? JSON.parse(o.items || "[]")
+          : [],
+      })) as Order[];
     },
   });
 
@@ -56,8 +63,14 @@ export const useMyOrder = (id: string) =>
   useQuery({
     queryKey: ["orders", "me", id],
     queryFn: async () => {
-      const { data } = await api.get<{ order: Order }>(`/orders/${id}`);
-      return data.order;
+      const { data } = await api.get<{ order: any }>(`/orders/${id}`);
+      const o = data.order;
+      const items = Array.isArray(o.items)
+        ? o.items
+        : typeof o.items === "string"
+        ? JSON.parse(o.items || "[]")
+        : [];
+      return { ...o, items } as Order;
     },
     enabled: !!id,
   });
@@ -70,7 +83,7 @@ export const useCreateOrder = () => {
   return useMutation({
     mutationFn: async (body: CreateOrderBody) => {
       const { data } = await api.post<{ order: { id: string } }>("/orders", body);
-      return data.order.id;
+      return data.order;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["orders", "me"] });

@@ -105,7 +105,22 @@ export default function ProfilePage() {
             <div className="addresses-section flex flex-col gap-1">
               <p className="text-sm text-gray-600">Addresses</p>
               <p className="text-sm text-gray-400">Your safety is our concern, please head to addresses to view/change your registered location.</p>
-              <Link href="/me/addresses" className="hover:underline rounded-lg border p-2 w-50 text-sm text-center">Change Addresses</Link>
+              <Link href="/me/addresses" className="hover:underline rounded-lg border p-2  text-sm text-center">Change Addresses</Link>
+            </div>
+            <div className="addresses-section flex flex-col gap-1">
+              <p className="text-sm text-gray-600">Orders</p>
+              <p className="text-sm text-gray-400">Check your current orders here!</p>
+              <Link href="/me/orders" className="hover:underline rounded-lg border p-2  text-sm text-center">View Orders</Link>
+            </div>
+            <div className="addresses-section flex flex-col gap-1">
+              <p className="text-sm text-gray-600">Reservations</p>
+              <p className="text-sm text-gray-400">Check your existing reservations here!</p>
+              <Link href="/me/reservations" className="hover:underline rounded-lg border p-2  text-sm text-center">View Reservations</Link>
+            </div>
+            <div className="addresses-section flex flex-col gap-1">
+              <p className="text-sm text-gray-600">Activities</p>
+              <p className="text-sm text-gray-400">Check your booked sessions here!</p>
+              <Link href="/me/bookings" className="hover:underline rounded-lg border p-2  text-sm text-center">View Activities</Link>
             </div>
             
 

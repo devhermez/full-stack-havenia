@@ -30,7 +30,8 @@ const CreateBookingSchema = z.object({
 export async function listActivities(req: Request, res: Response) {
   try {
     const parsed = ActivitiesQuery.safeParse(req.query);
-    if (!parsed.success) return res.status(422).json({ error: z.treeifyError(parsed.error) });
+    if (!parsed.success)
+      return res.status(422).json({ error: z.treeifyError(parsed.error) });
 
     const { property_id, type } = parsed.data;
     const sql = `
@@ -57,7 +58,8 @@ export async function listSessions(req: Request, res: Response) {
   try {
     const { id } = req.params; // activity_id
     const parsed = SessionsQuery.safeParse(req.query);
-    if (!parsed.success) return res.status(422).json({ error: z.treeifyError(parsed.error) });
+    if (!parsed.success)
+      return res.status(422).json({ error: z.treeifyError(parsed.error) });
 
     const { from, to } = parsed.data;
 
@@ -65,7 +67,7 @@ export async function listSessions(req: Request, res: Response) {
       SELECT
         s.id, s.activity_id, s.start_ts, s.end_ts, s.capacity, s.price_override,
         COALESCE(
-          (SELECT COUNT(*)::int
+          (SELECT SUM(b.guests)::int
            FROM activity_bookings b
            WHERE b.session_id = s.id
              AND b.status IN ('pending','confirmed')), 0
@@ -91,7 +93,8 @@ export async function listSessions(req: Request, res: Response) {
 export async function createBooking(req: AuthedRequest, res: Response) {
   // params.id is activity_id; body contains session_id and optional fields
   const parsed = CreateBookingSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(422).json({ error: z.treeifyError(parsed.error) });
+  if (!parsed.success)
+    return res.status(422).json({ error: z.treeifyError(parsed.error) });
 
   const { id: activity_id } = req.params;
   const { session_id, participant_age, acknowledged_waiver } = parsed.data;
@@ -132,16 +135,18 @@ export async function createBooking(req: AuthedRequest, res: Response) {
     const session = sessionRows[0];
     if (!session) {
       await rollback(tx);
-      return res.status(404).json({ error: { message: "Activity or session not found" } });
+      return res
+        .status(404)
+        .json({ error: { message: "Activity or session not found" } });
     }
 
     // 2) Capacity check (count current non-canceled bookings for this session)
     const { rows: capRows } = await query<{ c: string }>(
       `
-      SELECT COUNT(*)::int AS c
-      FROM activity_bookings
-      WHERE session_id = :sid::uuid
-        AND status IN ('pending','confirmed')
+     SELECT COALESCE(SUM(guests), 0)::int AS c
+FROM activity_bookings
+WHERE session_id = :sid::uuid
+  AND status IN ('pending','confirmed');
       `,
       [{ name: "sid", value: session_id }],
       tx
@@ -167,7 +172,9 @@ export async function createBooking(req: AuthedRequest, res: Response) {
     // 4) Waiver check (if activity requires it and not acknowledged)
     if (session.requires_waiver && !acknowledged_waiver) {
       await rollback(tx);
-      return res.status(422).json({ error: { message: "Waiver must be acknowledged" } });
+      return res
+        .status(422)
+        .json({ error: { message: "Waiver must be acknowledged" } });
     }
 
     // 5) Price calculation (override > base)
@@ -211,13 +218,17 @@ export async function createBooking(req: AuthedRequest, res: Response) {
 }
 
 /** ---------- GET /activity-bookings (mine) ---------- */
-export async function listMyActivityBookings(req: AuthedRequest, res: Response) {
+export async function listMyActivityBookings(
+  req: AuthedRequest,
+  res: Response
+) {
   try {
     const { rows } = await query<any>(
       `
       SELECT
         b.id,
         b.status,
+        b.payment_status,
         b.total AS price,
         b.created_at,
         s.start_ts,
@@ -242,7 +253,10 @@ export async function listMyActivityBookings(req: AuthedRequest, res: Response) 
 }
 
 /** ---------- PUT /activity-bookings/:id/cancel (mine) ---------- */
-export async function cancelMyActivityBooking(req: AuthedRequest, res: Response) {
+export async function cancelMyActivityBooking(
+  req: AuthedRequest,
+  res: Response
+) {
   try {
     const { id } = req.params;
 
@@ -263,7 +277,11 @@ export async function cancelMyActivityBooking(req: AuthedRequest, res: Response)
     );
 
     if (!rows.length) {
-      return res.status(404).json({ error: { message: "Booking not found or cannot be canceled" } });
+      return res
+        .status(404)
+        .json({
+          error: { message: "Booking not found or cannot be canceled" },
+        });
     }
 
     return res.json({ ok: true, id: rows[0].id });

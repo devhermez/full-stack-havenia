@@ -45,6 +45,7 @@ export type BookingMine = {
   created_at: string;
   start_ts: string;   // from session
   end_ts: string;
+  payment_status?: string;
   activity_id: string;
   activity_name: string;
   activity_type: string;

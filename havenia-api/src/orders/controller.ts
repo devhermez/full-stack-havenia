@@ -189,7 +189,7 @@ export async function listMyOrders(req: AuthedRequest, res: Response) {
               'name', mi.name
             )
           ) FILTER (WHERE oi.menu_item_id IS NOT NULL),
-          '[]'
+          '[]'::json
         ) AS items
       FROM orders o
       LEFT JOIN order_items oi ON oi.order_id = o.id
@@ -232,7 +232,7 @@ export async function getMyOrder(req: AuthedRequest, res: Response) {
               'name', mi.name
             )
           ) FILTER (WHERE oi.menu_item_id IS NOT NULL),
-          '[]'
+          '[]'::json
         ) AS items
       FROM orders o
       LEFT JOIN order_items oi ON oi.order_id = o.id

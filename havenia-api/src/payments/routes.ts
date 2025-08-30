@@ -87,14 +87,18 @@ async function createReservationPI(req: AuthedRequest, res: Response) {
   );
   const r = rows[0];
   if (!r || r.user_id !== req.user!.id) {
-    return res.status(404).json({ error: { message: "Reservation not found" } });
+    return res
+      .status(404)
+      .json({ error: { message: "Reservation not found" } });
   }
 
   const nights = Math.floor(
     (Date.parse(r.end_date) - Date.parse(r.start_date)) / (1000 * 60 * 60 * 24)
   );
   if (nights <= 0) {
-    return res.status(400).json({ error: { message: "Invalid reservation dates" } });
+    return res
+      .status(400)
+      .json({ error: { message: "Invalid reservation dates" } });
   }
 
   const amount = Number(r.price) * nights;
@@ -120,11 +124,72 @@ async function createReservationPI(req: AuthedRequest, res: Response) {
   });
 }
 
+// --- Create PI for ACTIVITY BOOKING ---
+async function createActivityBookingPI(req: AuthedRequest, res: Response) {
+  const parsed = IdParam.safeParse(req.params);
+  if (!parsed.success) {
+    return res.status(422).json({ error: z.treeifyError(parsed.error) });
+  }
+  const { id } = parsed.data;
+
+  // Pull total & ownership; guests has a DB default of 1 in your setup
+  const { rows } = await query<{
+    id: string;
+    user_id: string;
+    total: string; // <- numerics come back as strings
+    guests: number | null;
+    status: string;
+  }>(
+    `SELECT id, user_id, total, guests, status
+     FROM activity_bookings
+     WHERE id = :id::uuid`,
+    [{ name: "id", value: id }]
+  );
+
+  const b = rows[0];
+  if (!b || b.user_id !== req.user!.id) {
+    return res.status(404).json({ error: { message: "Booking not found" } });
+  }
+  if (b.status === "canceled") {
+    return res.status(400).json({ error: { message: "Booking is canceled" } });
+  }
+
+  // If you later set status='confirmed' after payment, you can block re-payment:
+  // if (b.status === "confirmed") return res.status(409).json({ error: { message: "Already paid" } });
+
+  // total already reflects guests in your DB; if not, multiply here.
+  const guests = b.guests ?? 1;
+  const amount = Number(b.total); // if your total is per booking, leave as is
+
+  const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
+
+  const pi = await stripe.paymentIntents.create(
+    {
+      amount: cents(amount), // to minor units
+      currency: CURRENCY,
+      metadata: {
+        kind: "activity_booking",
+        booking_id: id,
+        user_id: req.user!.id,
+      },
+      automatic_payment_methods: { enabled: true },
+    },
+    idempotencyKey ? { idempotencyKey } : undefined
+  );
+
+  return res.json({
+    client_secret: pi.client_secret,
+    payment_intent_id: pi.id,
+  });
+}
+
 /* ---------- Webhook (raw body) ---------- */
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 if (!webhookSecret) {
-  console.warn("Warning: STRIPE_WEBHOOK_SECRET is not set; webhook verification will fail");
+  console.warn(
+    "Warning: STRIPE_WEBHOOK_SECRET is not set; webhook verification will fail"
+  );
 }
 
 // raw body parser for Stripe webhook — DO NOT export it inline to avoid redeclare issues
@@ -144,6 +209,15 @@ async function handleWebhook(req: any, res: Response) {
     if (event.type === "payment_intent.succeeded") {
       const pi = event.data.object as Stripe.PaymentIntent;
       const kind = pi.metadata?.kind;
+
+      if (kind === "activity_booking" && pi.metadata?.booking_id) {
+        await query(
+          `UPDATE activity_bookings
+       SET status='confirmed', payment_status='paid'
+     WHERE id = :id::uuid`,
+          [{ name: "id", value: pi.metadata.booking_id }]
+        );
+      }
 
       if (kind === "order" && pi.metadata?.order_id) {
         await query(
@@ -166,6 +240,16 @@ async function handleWebhook(req: any, res: Response) {
     if (event.type === "payment_intent.payment_failed") {
       const pi = event.data.object as Stripe.PaymentIntent;
       const kind = pi.metadata?.kind;
+
+      if (kind === "activity_booking" && pi.metadata?.booking_id) {
+        await query(
+          `UPDATE activity_bookings
+       SET status='canceled', payment_status='failed'
+     WHERE id = :id::uuid
+       AND status IN ('pending','confirmed')`,
+          [{ name: "id", value: pi.metadata.booking_id }]
+        );
+      }
 
       if (kind === "order" && pi.metadata?.order_id) {
         await query(
@@ -222,6 +306,7 @@ const router = Router();
  */
 router.post("/orders/:id/intent", requireAuth, createOrderPI);
 router.post("/reservations/:id/intent", requireAuth, createReservationPI);
+router.post("/bookings/:id/intent", requireAuth, createActivityBookingPI);
 
 // Do NOT mount /webhook here; mount at app level before express.json().
 export { stripeWebhook, handleWebhook };

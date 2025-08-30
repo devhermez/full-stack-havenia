@@ -34,3 +34,15 @@ export const useCreateReservationPI = () =>
       return data;
     },
   });
+
+  export const useCreateActivityBookingPI = () =>
+  useMutation({
+    mutationFn: async (bookingId: string) => {
+      const { data } = await api.post<{ client_secret: string; payment_intent_id: string }>(
+        `/payments/bookings/${bookingId}/intent`,
+        {},
+        { headers: { "Idempotency-Key": crypto.randomUUID() } }
+      );
+      return data;
+    },
+  });

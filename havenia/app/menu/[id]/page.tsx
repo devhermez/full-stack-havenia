@@ -1,12 +1,13 @@
 // app/menu/[id]/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ClientNav from "@/components/ClientNav";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import type { AxiosError } from "axios";
+import { useCart } from "@/components/cart/CartProvider";
 
 type MenuItem = {
   id: string;
@@ -22,12 +23,21 @@ type MenuItem = {
 };
 
 export default function MenuItemPage() {
+  const { add } = useCart();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const [item, setItem] = useState<MenuItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
+  // --- minimal toast state ---
+    const [toast, setToast] = useState<string | null>(null);
+    const timerRef = useRef<number | null>(null);
+    const showToast = (text: string) => {
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      setToast(text);
+      timerRef.current = window.setTimeout(() => setToast(null), 1800);
+    };
 
   useEffect(() => {
     if (!id) return;
@@ -85,12 +95,32 @@ export default function MenuItemPage() {
   return (
     <div className="w-screen min-h-screen bg-amber-700">
       <ClientNav />
+       {/* tiny toast */}
+      {toast && (
+        <div className="fixed w-75 bottom-6 left-1/2 -translate-x-1/2 z-[60] rounded-md bg-black/85 text-white text-sm px-4 py-2 shadow flex justify-center items-center text-center gap-2">
+          {toast}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="w-5 h-5 text-green-400"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4.5 12.75l6 6 9-13.5"
+            />
+          </svg>
+        </div>
+      )}
 
       <main className="max-w-5xl mx-auto px-4 py-8 text-black">
         <div className="mb-4">
           <button
             onClick={() => router.back()}
-            className="text-sm text-white/90 hover:text-white underline"
+            className="text-sm text-white/90 hover:text-white px-2"
           >
             ← Back
           </button>
@@ -146,13 +176,17 @@ export default function MenuItemPage() {
 
             <div className="pt-2 flex items-center gap-3">
               {/* If you later add a cart/ordering flow, wire this up */}
-              <button
-                disabled={!item.in_stock}
-                className="rounded-lg bg-black text-white px-4 py-2 disabled:opacity-50"
-                onClick={() => alert("Add-to-order coming soon")}
-              >
-                Add to order
-              </button>
+             <button
+                        className="text-sm rounded-lg border px-4 py-2 hover:bg-neutral-50"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          add({ id: item.id, name: item.name, price: item.price }, 1);
+                          showToast(`Added “${item.name}” to your cart`);
+                        }}
+                      >
+                        Add to cart
+                      </button>
 
               <Link
                 href="/menu"
