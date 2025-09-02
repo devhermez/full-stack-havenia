@@ -63,3 +63,39 @@ export async function listAllReservations(req: Request, res: Response) {
   );
   res.json({ data: rows });
 }
+
+export async function listAllBookings(req: Request, res: Response) {
+  const PageQuery = z.object({
+    limit: z.coerce.number().int().min(1).max(200).default(50),
+    offset: z.coerce.number().int().min(0).default(0),
+  });
+  const { limit, offset } = PageQuery.parse(req.query);
+
+  const { rows } = await query(
+    `
+    SELECT
+      b.id,
+      b.user_id,
+      u.email,
+      b.activity_id,
+      a.name AS activity_name,
+      b.session_id,
+      s.start_ts,
+      s.end_ts,
+      b.guests,
+      b.status,
+      b.payment_status,
+      b.total,
+      b.created_at
+    FROM activity_bookings b
+    JOIN users u            ON u.id = b.user_id
+    JOIN activities a       ON a.id = b.activity_id
+    JOIN activity_sessions s ON s.id = b.session_id
+    ORDER BY b.created_at DESC
+    LIMIT :limit OFFSET :offset
+    `,
+    [{ name: "limit", value: limit }, { name: "offset", value: offset }]
+  );
+
+  res.json({ data: rows });
+}

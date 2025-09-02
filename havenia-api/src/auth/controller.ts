@@ -99,8 +99,9 @@ export async function login(req: Request, res: Response) {
       name: string | null;
       password_hash: string | null;
       role: string | null;
+      profile_image_url: string | null;
     }>(
-      `SELECT id, email, name, password_hash, role
+      `SELECT id, email, name, password_hash, role, profile_image_url
        FROM users
        WHERE email = :email
        LIMIT 1`,
@@ -141,8 +142,9 @@ export async function me(req: AuthedRequest, res: Response) {
       email: string;
       name: string | null;
       role: string | null;
+      profile_image_url: string | null;
     }>(
-      `SELECT id, email, name, role
+      `SELECT id, email, name, role, profile_image_url
        FROM users
        WHERE id = :id::uuid
        LIMIT 1`,
