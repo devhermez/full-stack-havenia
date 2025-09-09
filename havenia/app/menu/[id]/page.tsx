@@ -93,7 +93,7 @@ export default function MenuItemPage() {
   }).format(item.price);
 
   return (
-    <div className="w-screen min-h-screen bg-amber-700">
+    <div className="w-screen min-h-screen bg-gradient-to-r from-amber-900 to-amber-500">
       <ClientNav />
        {/* tiny toast */}
       {toast && (

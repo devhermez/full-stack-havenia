@@ -14,6 +14,7 @@ type Room = {
   price: string;
   created_at: string;
   image_url?: string;
+  description?: string;
 };
 
 export default function RoomsPage() {
@@ -40,16 +41,19 @@ export default function RoomsPage() {
   if (err) return <p className="p-6 text-red-600">{err}</p>;
 
   return (
-    <main className="w-screen min-h-screen bg-gray-700">
+    <main className="w-screen min-h-screen bg-gradient-to-b from-green-700 to-white">
       <ClientNav />
-      <div className="rooms-content p-8">
-        <h1 className="text-2xl font-semibold mb-6 text-white">
+      <div className="rooms-content flex flex-col p-6 w-screen md:justify-center md:items-start lg:min-h-200">
+        <div className="">
+          <h1 className="text-2xl font-semibold mb-2 text-white">
           Available Rooms
         </h1>
+        <p className="text-white mb-4 tinos-regular">Make every moment unforgettable. Browse our exciting activities and book your next adventure today.</p>
+        </div>
         {rooms.length === 0 ? (
           <p className="text-neutral-600">No rooms available.</p>
         ) : (
-          <ul className="grid sm:grid-cols-2 gap-6 text-white">
+          <ul className="flex flex-col gap-6 text-white md:justify-evenly h-full w-full">
             {rooms.map((room) => {
               const bg = room.image_url
                 ? `url("${room.image_url}")`
@@ -58,18 +62,25 @@ export default function RoomsPage() {
               return (
                 <li
                   key={room.id}
-                  className="border rounded-lg p-4 shadow bg-center bg-cover bg-black/20 bg-blend-overlay"
+                  className="border h-[400px] flex flex-col justify-between w-auto rounded-lg p-4 shadow bg-center bg-cover bg-black/30 bg-blend-overlay"
                   style={{ backgroundImage: bg }}
                 >
-                  <h2 className="text-lg font-medium">{room.name}</h2>
-                  <p className="text-sm ">Capacity: {room.capacity}</p>
-                  <p className="text-sm ">₱{room.price}</p>
+                  <div className="flex flex-col gap-2">
+                    <h2 className="text-lg font-medium md:text-3xl tinos-bold">{room.name}</h2>
+                    <p className="text-sm md:text-lg lg:w-[50ch] text-neutral-200">{room.description}</p>
+                  <p className="text-sm md:text-lg">Capacity: {room.capacity}</p>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm lg:text-lg font-bold">${room.price}</p>
                   <Link
                     href={`/rooms/${room.id}`}
-                    className="mt-3 inline-block px-3 py-1 text-sm rounded-lg bg-white text-black"
+                    className="px-3 py-1 text-sm rounded-lg bg-white text-black flex justify-center items-center "
                   >
                     View details
                   </Link>
+                  </div>
+                  
                 </li>
               );
             })}

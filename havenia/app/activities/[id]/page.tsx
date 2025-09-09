@@ -54,10 +54,10 @@ export default function ActivityDetailPage() {
   }
 
   return (
-    <div className="w-screen bg-gradient-to-r from-blue-900 to-cyan-700 ">
+    <div className="w-screen min-h-screen text-black bg-gradient-to-r from-blue-900 to-cyan-700 ">
       <ClientNav />
-      <div className="px-4 py-12 flex flex-col gap-4 justify-center items-center ">
-        <section className="bg-white rounded-xl border shadow-sm p-6">
+      <div className="px-4 py-12 w-full flex flex-col gap-4 justify-center items-center">
+        <section className="bg-white w-full max-w-4xl rounded-xl border shadow-sm p-6">
           <h1 className="text-2xl font-semibold">{activity.name}</h1>
           <p className="text-neutral-700 mt-2">{activity.description}</p>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
@@ -69,7 +69,7 @@ export default function ActivityDetailPage() {
           </div>
         </section>
 
-        <section className="w-full bg-white rounded-xl border shadow-sm p-6">
+        <section className="w-full max-w-4xl bg-white rounded-xl border shadow-sm p-6">
           <h2 className="text-lg font-semibold mb-3">Sessions</h2>
 
           {sessions && sessions.length > 0 ? (

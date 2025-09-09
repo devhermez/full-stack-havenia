@@ -3,7 +3,7 @@ import { FaXTwitter } from "react-icons/fa6";
 
 export default function Company() {
     return (
-        <div className="company-container bg-gray-700 text-white grid grid-cols-2 text-sm p-8 gap-8">
+        <div className="company-container bg-gray-700 text-white grid grid-cols-2 text-md p-8 gap-8 md:text-md lg:text-lg lg:flex lg:justify-between lg:pl-30 lg:pr-30 lg:pt-20 lg:pb-20">
             {/* ABOUT */}
       <div className="company-content">
         <h3 className="company-content-title font-semibold mb-3">ABOUT US</h3>

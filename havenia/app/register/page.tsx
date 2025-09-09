@@ -44,20 +44,20 @@ export default function RegisterPage() {
 
   return (
     <main className="flex items-center justify-center min-h-screen px-4">
-      <div className="bg-white rounded-2xl shadow p-6 space-y-4 max-w-sm w-full">
-        <h1 className="text-xl font-semibold">Create Account</h1>
+      <div className="bg-white rounded-2xl shadow p-6 space-y-4 max-w-sm w-full border border-gray-300">
+        <h1 className="text-xl font-semibold text-black">Create Account</h1>
         <p className="text-sm text-gray-400">Enter your details below to sign up and start exploring Havenia. </p>
 
-        <form onSubmit={onSubmit} className="space-y-3">
+        <form onSubmit={onSubmit} className="space-y-3 ">
           <input
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border rounded-lg px-3 py-2 placeholder-gray-300 text-sm"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Full Name"
             autoComplete="name"
           />
           <input
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border rounded-lg px-3 py-2 placeholder-gray-300 text-sm"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
@@ -65,7 +65,7 @@ export default function RegisterPage() {
             autoComplete="email"
           />
           <input
-            className="w-full border rounded-lg px-3 py-2"
+            className="w-full border rounded-lg px-3 py-2 placeholder-gray-300 text-sm"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"

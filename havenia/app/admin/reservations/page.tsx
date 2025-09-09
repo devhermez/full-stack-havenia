@@ -40,8 +40,8 @@ export default function AdminReservationsPage() {
 
   return (
     <AdminGuard>
-      <ClientNav />
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      
+      <main className="max-w-5xl mx-auto px-4 py-8 text-black">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Admin · Reservations</h1>
         </div>

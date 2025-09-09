@@ -29,11 +29,17 @@ export default function AdminBookingsPage() {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await api.get<{ data: AdminBooking[] }>("/admin/bookings");
+        const { data } = await api.get<{ data: AdminBooking[] }>(
+          "/admin/bookings"
+        );
         setData(data.data ?? []);
       } catch (e) {
         const ax = e as AxiosError<any>;
-        setErr(ax.response?.data?.error?.message ?? ax.message ?? "Failed to load bookings");
+        setErr(
+          ax.response?.data?.error?.message ??
+            ax.message ??
+            "Failed to load bookings"
+        );
       } finally {
         setLoading(false);
       }
@@ -42,8 +48,7 @@ export default function AdminBookingsPage() {
 
   return (
     <AdminGuard>
-      <ClientNav />
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 py-8 text-black">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Admin · Bookings</h1>
         </div>
@@ -66,30 +71,44 @@ export default function AdminBookingsPage() {
                 </tr>
               </thead>
               <tbody>
-                {data.map(b => (
+                {data.map((b) => (
                   <tr key={b.id} className="border-t">
                     <td className="px-3 py-2">
-                      <div className="font-medium">{b.activity_name ?? b.activity_id ?? "(activity)"}</div>
+                      <div className="font-medium">
+                        {b.activity_name ?? b.activity_id ?? "(activity)"}
+                      </div>
                       <div className="text-gray-600">{b.id}</div>
                     </td>
                     <td className="px-3 py-2 text-center">
                       {b.start_ts ? new Date(b.start_ts).toLocaleString() : "—"}
                     </td>
-                    <td className="px-3 py-2 text-center">{b.user_email ?? b.user_id ?? "—"}</td>
+                    <td className="px-3 py-2 text-center">
+                      {b.user_email ?? b.user_id ?? "—"}
+                    </td>
                     <td className="px-3 py-2 text-center">{b.guests ?? 1}</td>
                     <td className="px-3 py-2 text-center">
-                      <span className="text-xs rounded border px-2 py-0.5">{b.status}</span>
+                      <span className="text-xs rounded border px-2 py-0.5">
+                        {b.status}
+                      </span>
                     </td>
                     <td className="px-3 py-2 text-center">
-                      <span className="text-xs rounded border px-2 py-0.5">{b.payment_status ?? "—"}</span>
+                      <span className="text-xs rounded border px-2 py-0.5">
+                        {b.payment_status ?? "—"}
+                      </span>
                     </td>
                     <td className="px-3 py-2 text-gray-600">
-                      {b.created_at ? new Date(b.created_at).toLocaleString() : "—"}
+                      {b.created_at
+                        ? new Date(b.created_at).toLocaleString()
+                        : "—"}
                     </td>
                   </tr>
                 ))}
                 {data.length === 0 && (
-                  <tr><td className="px-3 py-4 text-gray-600" colSpan={7}>No bookings found.</td></tr>
+                  <tr>
+                    <td className="px-3 py-4 text-gray-600" colSpan={7}>
+                      No bookings found.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>

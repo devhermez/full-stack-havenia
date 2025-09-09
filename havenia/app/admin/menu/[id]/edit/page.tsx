@@ -44,17 +44,17 @@ export default function AdminNewMenuItem() {
 
   return (
     <AdminGuard>
-      <ClientNav />
-      <main className="max-w-md mx-auto px-4 py-8">
+      
+      <main className="max-w-md mx-auto px-4 py-8 text-black">
         <h1 className="text-2xl font-semibold mb-6">Create Menu Item</h1>
         <form onSubmit={onSubmit} className="space-y-4">
-          <input className="w-full border rounded-lg px-3 py-2" placeholder="Name" value={name} onChange={e=>setName(e.target.value)} />
-          <textarea className="w-full border rounded-lg px-3 py-2" placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)} />
-          <input className="w-full border rounded-lg px-3 py-2" placeholder="Price" value={price} onChange={e=>setPrice(e.target.value===""?"":Number(e.target.value))} />
-          <input className="w-full border rounded-lg px-3 py-2" placeholder="Category ID (uuid)" value={categoryId} onChange={e=>setCategoryId(e.target.value)} />
-          <input className="w-full border rounded-lg px-3 py-2" placeholder="Property ID (uuid)" value={propertyId} onChange={e=>setPropertyId(e.target.value)} />
-          <input className="w-full border rounded-lg px-3 py-2" placeholder="Image URL" value={imageUrl} onChange={e=>setImageUrl(e.target.value)} />
-          <input className="w-full border rounded-lg px-3 py-2" placeholder="Prep minutes" value={prepMinutes} onChange={e=>setPrepMinutes(e.target.value===""?"":Number(e.target.value))} />
+          <input className="w-full placeholder-gray-300 border rounded-lg px-3 py-2" placeholder="Name" value={name} onChange={e=>setName(e.target.value)} />
+          <textarea className="w-full placeholder-gray-300 border rounded-lg px-3 py-2" placeholder="Description" value={description} onChange={e=>setDescription(e.target.value)} />
+          <input className="w-full placeholder-gray-300 border rounded-lg px-3 py-2" placeholder="Price" value={price} onChange={e=>setPrice(e.target.value===""?"":Number(e.target.value))} />
+          <input className="w-full placeholder-gray-300 border rounded-lg px-3 py-2" placeholder="Category ID (uuid)" value={categoryId} onChange={e=>setCategoryId(e.target.value)} />
+          <input className="w-full placeholder-gray-300 border rounded-lg px-3 py-2" placeholder="Property ID (uuid)" value={propertyId} onChange={e=>setPropertyId(e.target.value)} />
+          <input className="w-full  placeholder-gray-300 border rounded-lg px-3 py-2" placeholder="Image URL" value={imageUrl} onChange={e=>setImageUrl(e.target.value)} />
+          <input className="w-full placeholder-gray-300 border rounded-lg px-3 py-2" placeholder="Prep minutes" value={prepMinutes} onChange={e=>setPrepMinutes(e.target.value===""?"":Number(e.target.value))} />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={inStock} onChange={(e)=>setInStock(e.target.checked)} /> In stock
           </label>

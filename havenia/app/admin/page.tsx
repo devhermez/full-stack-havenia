@@ -72,7 +72,11 @@ export default function AdminDashboardPage() {
         setBookings((b.data.data ?? []).slice(0, 3));
       } catch (e) {
         const ax = e as AxiosError<any>;
-        setErr(ax.response?.data?.error?.message ?? ax.message ?? "Failed to load dashboard");
+        setErr(
+          ax.response?.data?.error?.message ??
+            ax.message ??
+            "Failed to load dashboard"
+        );
       } finally {
         setLoading(false);
       }
@@ -81,8 +85,7 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminGuard>
-      <AdminNav />
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto min-h-auto px-4 py-8 text-black">
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Admin · Dashboard</h1>
         </div>
@@ -91,83 +94,126 @@ export default function AdminDashboardPage() {
         {err && <p className="text-red-600">{err}</p>}
 
         {!loading && !err && (
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid gap-6">
             {/* Admin info quick links */}
             <div className="bg-white rounded-2xl shadow p-4">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold">Users</h2>
-                <Link href="/admin/users" className="text-sm underline">View all</Link>
+                <Link href="/admin/users" className="text-sm underline">
+                  View all
+                </Link>
               </div>
               <div className="space-y-2">
-                {users.map(u => (
-                  <div key={u.id} className="flex items-center justify-between text-sm">
+                {users.map((u) => (
+                  <div
+                    key={u.id}
+                    className="flex items-center justify-between text-sm"
+                  >
                     <div>
                       <div className="font-medium">{u.name ?? "(no name)"}</div>
                       <div className="text-gray-600">{u.email}</div>
                     </div>
-                    <span className="text-xs rounded border px-2 py-0.5">{u.role ?? "user"}</span>
+                    <span className="text-xs rounded border px-2 py-0.5">
+                      {u.role ?? "user"}
+                    </span>
                   </div>
                 ))}
-                {users.length === 0 && <p className="text-gray-600 text-sm">No users yet.</p>}
+                {users.length === 0 && (
+                  <p className="text-gray-600 text-sm">No users yet.</p>
+                )}
               </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow p-4">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold">Menu (first 3)</h2>
-                <Link href="/admin/menu" className="text-sm underline">Manage</Link>
+                <Link href="/admin/menu" className="text-sm underline">
+                  Manage
+                </Link>
               </div>
               <div className="space-y-2">
-                {menu.map(m => (
-                  <div key={m.id} className="flex items-center justify-between text-sm">
+                {menu.map((m) => (
+                  <div
+                    key={m.id}
+                    className="flex items-center justify-between text-sm"
+                  >
                     <div>
                       <div className="font-medium">{m.name}</div>
-                      <div className="text-gray-600">{m.category ?? "Uncategorized"}</div>
+                      <div className="text-gray-600">
+                        {m.category ?? "Uncategorized"}
+                      </div>
                     </div>
                     <div className="font-medium">
-                      {Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(Number(m.price))}
+                      {Intl.NumberFormat(undefined, {
+                        style: "currency",
+                        currency: "USD",
+                      }).format(Number(m.price))}
                     </div>
                   </div>
                 ))}
-                {menu.length === 0 && <p className="text-gray-600 text-sm">No menu items yet.</p>}
+                {menu.length === 0 && (
+                  <p className="text-gray-600 text-sm">No menu items yet.</p>
+                )}
               </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow p-4">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold">Recent Reservations</h2>
-                <Link href="/admin/reservations" className="text-sm underline">View all</Link>
+                <Link href="/admin/reservations" className="text-sm underline">
+                  View all
+                </Link>
               </div>
               <div className="space-y-2 text-sm">
-                {reservations.map(r => (
+                {reservations.map((r) => (
                   <div key={r.id} className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium">{r.room_name ?? "(room)"}</div>
-                      <div className="text-gray-600">{r.start_date} → {r.end_date}</div>
+                      <div className="font-medium">
+                        {r.room_name ?? "(room)"}
+                      </div>
+                      <div className="text-gray-600">
+                        {r.start_date} → {r.end_date}
+                      </div>
                     </div>
-                    <span className="text-xs rounded border px-2 py-0.5">{r.status}</span>
+                    <span className="text-xs rounded border px-2 py-0.5">
+                      {r.status}
+                    </span>
                   </div>
                 ))}
-                {reservations.length === 0 && <p className="text-gray-600 text-sm">No reservations yet.</p>}
+                {reservations.length === 0 && (
+                  <p className="text-gray-600 text-sm">No reservations yet.</p>
+                )}
               </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow p-4">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold">Recent Bookings</h2>
-                <Link href="/admin/bookings" className="text-sm underline">View all</Link>
+                <Link href="/admin/bookings" className="text-sm underline">
+                  View all
+                </Link>
               </div>
               <div className="space-y-2 text-sm">
-                {bookings.map(b => (
+                {bookings.map((b) => (
                   <div key={b.id} className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium">{b.activity_name ?? "(activity)"}</div>
-                      <div className="text-gray-600">{b.start_ts ? new Date(b.start_ts).toLocaleString() : ""}</div>
+                      <div className="font-medium">
+                        {b.activity_name ?? "(activity)"}
+                      </div>
+                      <div className="text-gray-600">
+                        {b.start_ts
+                          ? new Date(b.start_ts).toLocaleString()
+                          : ""}
+                      </div>
                     </div>
-                    <span className="text-xs rounded border px-2 py-0.5">{b.status}</span>
+                    <span className="text-xs rounded border px-2 py-0.5">
+                      {b.status}
+                    </span>
                   </div>
                 ))}
-                {bookings.length === 0 && <p className="text-gray-600 text-sm">No bookings yet.</p>}
+                {bookings.length === 0 && (
+                  <p className="text-gray-600 text-sm">No bookings yet.</p>
+                )}
               </div>
             </div>
           </div>

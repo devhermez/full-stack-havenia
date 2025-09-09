@@ -90,3 +90,17 @@ export const useCreateOrder = () => {
     },
   });
 };
+
+// hooks/orders.ts
+export const useCancelOrder = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await api.put(`/orders/${id}/cancel`);
+      return id;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["orders", "me"] });
+    },
+  });
+};

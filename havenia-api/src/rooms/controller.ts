@@ -63,7 +63,7 @@ export async function listRooms(req: Request, res: Response) {
       // Availability filter: NOT EXISTS overlapping reservation
       const sql = `
   SELECT
-    rm.id, rm.property_id, rm.name, rm.capacity, rm.price, rm.created_at, rm.image_url
+    rm.id, rm.property_id, rm.name, rm.capacity, rm.price, rm.created_at, rm.image_url, rm.description
   FROM rooms rm
   WHERE rm.property_id = :pid::uuid
     AND (:mincap::int IS NULL OR rm.capacity >= :mincap::int)
@@ -94,7 +94,7 @@ export async function listRooms(req: Request, res: Response) {
     } else {
       // No date filter → simple list
       const sql = `
-        SELECT rm.id, rm.property_id, rm.name, rm.capacity, rm.price, rm.created_at, rm.image_url
+        SELECT rm.id, rm.property_id, rm.name, rm.capacity, rm.price, rm.created_at, rm.image_url, rm.description
         FROM rooms rm
         WHERE rm.property_id = :pid::uuid
           AND (:mincap::int IS NULL OR rm.capacity >= :mincap::int)
@@ -329,7 +329,7 @@ export async function getRoom(req: Request, res: Response) {
     const { rows } = await query(
       `
       SELECT
-        id, property_id, name, capacity, price, created_at
+        id, property_id, name, capacity, price, created_at, description
       FROM rooms
       WHERE id = :rid::uuid
       LIMIT 1

@@ -21,23 +21,26 @@ export default function AdminResponsiveNav({ authed, user, onSignOut }: Props) {
   const isAdminish = user?.role === "admin" || user?.role === "staff";
 
   return (
-    <header className="top-0 z-40 text-white bg-transparent pt-4 pl-2 pr-2">
+    <header className="top-0 z-40 text-black bg-transparent pt-4 pl-2 pr-2">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <Link
-          href="/admin"
+          href="/home"
           className="font-semibold"
           aria-label="Havenia Admin"
         >
-          <img className="w-[80px]" src="/image.png" alt="" />
+          <img className="w-[80px]" src="/image2.png" alt="" />
         </Link>
 
         {/* Desktop / Tablet */}
-        <nav className="hidden md:flex items-center gap-4 text-sm">
+        <nav className="hidden md:flex items-center gap-4 text-sm ">
           <Link href="/admin" className="hover:underline">
             Dashboard
           </Link>
           <Link href="/admin/menu" className="hover:underline">
             Menu
+          </Link>
+          <Link href="/admin/users" className="hover:underline">
+            Users
           </Link>
           <Link href="/admin/reservations" className="hover:underline">
             Reservations

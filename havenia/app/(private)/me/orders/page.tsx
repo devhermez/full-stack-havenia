@@ -9,10 +9,12 @@ import { getStripe } from "@/lib/stripe";
 import PayWithCard from "@/components/PayWithCard";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useCancelOrder } from "@/hooks/orders"; // 👈 new hook
 
 export default function MyOrdersPage() {
   const { data, isLoading, error } = useMyOrders();
   const createPI = useCreateOrderPI();
+  const cancelMut = useCancelOrder();
   const qc = useQueryClient();
   const stripePromise = getStripe();
 
@@ -38,7 +40,11 @@ export default function MyOrdersPage() {
     <div className="w-screen min-h-screen bg-gradient-to-r from-amber-600 to-rose-700">
       <ClientNav />
       <div className="max-w-5xl mx-auto px-4 py-8 text-white">
-        <h1 className="text-2xl font-semibold mb-6">My Orders</h1>
+        <h1 className="text-2xl font-semibold mb-2">My Orders</h1>
+        <p className="text-white mb-4 tinos-regular">
+          Hungry? Track your food and drink orders here — see what’s cooking and
+          check your order status.
+        </p>
 
         {isLoading && <p>Loading…</p>}
         {error && <p className="text-red-300">Failed to load orders.</p>}
@@ -63,50 +69,76 @@ export default function MyOrdersPage() {
                     {new Date(o.created_at).toLocaleString()}
                   </div>
                   <div className="mt-1 text-xs">
-                    Status: {o.status} · Payment: {o.payment_status} · Total: {total}
+                    <p>Status: {o.status}</p>
+                    <p>Payment: {o.payment_status}</p>
+                    <p>Total: {total}</p>
                   </div>
+
                   {/* Items */}
-{Array.isArray(o.items) && o.items.length > 0 && (
-  <div className="mt-3">
-    <div className="text-xs font-medium text-neutral-700">Items</div>
-    <ul className="mt-1 space-y-0.5 text-sm text-neutral-800">
-      {o.items.map((it, i) => {
-        const unit = Number(it.unit_price);
-        const line = unit * Number(it.qty);
-        return (
-          <li key={i} className="flex justify-between">
-            <span>{it.name} × {it.qty}</span>
-            <span>
-              {line.toLocaleString(undefined, { style: "currency", currency: "USD" })}
-            </span>
-          </li>
-        );
-      })}
-    </ul>
-  </div>
-)}
+                  {Array.isArray(o.items) && o.items.length > 0 && (
+                    <div className="mt-3">
+                      <div className="text-xs font-medium text-neutral-700">
+                        Items
+                      </div>
+                      <ul className="mt-1 space-y-0.5 text-sm text-neutral-800">
+                        {o.items.map((it, i) => {
+                          const unit = Number(it.unit_price);
+                          const line = unit * Number(it.qty);
+                          return (
+                            <li key={i} className="flex justify-between">
+                              <span>
+                                {it.name} × {it.qty}
+                              </span>
+                              <span>
+                                {line.toLocaleString(undefined, {
+                                  style: "currency",
+                                  currency: "USD",
+                                })}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col items-center gap-2 px-2">
                   {/* Pay only when pending/unpaid */}
                   {o.status === "pending" && o.payment_status !== "paid" && (
                     <button
-                      className="text-sm rounded px-3 py-1 bg-black text-white disabled:opacity-50"
+                      className="text-sm rounded px-3 py-1 bg-black text-white disabled:opacity-50 w-[75]"
                       onClick={() => startPay(o.id)}
                       disabled={createPI.isPending}
                     >
-                      {createPI.isPending && payingFor === o.id ? "Preparing…" : "Pay"}
+                      {createPI.isPending && payingFor === o.id
+                        ? "Preparing…"
+                        : "Pay"}
                     </button>
                   )}
-                  
+
+                 
+                  <Link
+                    href={`/me/orders/${o.id}`}
+                    className="text-sm w-[75] text-center rounded px-3 py-1 border border-black hover:bg-black hover:text-white transition"
+                  >
+                    View
+                  </Link>
+                   {/* Cancel button when pending */}
+                  {o.status === "pending" && (
+                    <button
+                      className="text-sm rounded w-[75] px-3 py-1 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition disabled:opacity-50"
+                      onClick={() => cancelMut.mutate(o.id, {
+                        onSuccess: () =>
+                          qc.invalidateQueries({ queryKey: ["orders", "me"] }),
+                      })}
+                      disabled={cancelMut.isPending}
+                    >
+                      {cancelMut.isPending ? "Canceling…" : "Cancel"}
+                    </button>
+                  )}
+
                 </div>
-                <Link
-      href={`/me/orders/${o.id}`}
-      className="text-sm rounded px-3 py-1 border border-black hover:bg-black hover:text-white transition"
-    >
-      View
-    </Link>
-                
               </li>
             );
           })}
@@ -119,7 +151,10 @@ export default function MyOrdersPage() {
           <div className="w-full md:max-w-md md:rounded-2xl bg-white p-4 shadow-xl">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold">Complete payment</h2>
-              <button onClick={closePay} className="rounded border px-2 py-1 text-sm">
+              <button
+                onClick={closePay}
+                className="rounded border px-2 py-1 text-sm"
+              >
                 Close
               </button>
             </div>
@@ -130,9 +165,7 @@ export default function MyOrdersPage() {
                 onSuccess={() => {
                   const id = payingFor!;
                   closePay();
-                  // refresh the list to show confirmed/paid
                   qc.invalidateQueries({ queryKey: ["orders", "me"] });
-                  // go to a confirmation/receipt page
                   window.location.href = `/me/orders/${id}/confirmation`;
                 }}
               />

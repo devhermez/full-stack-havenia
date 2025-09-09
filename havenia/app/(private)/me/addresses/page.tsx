@@ -107,7 +107,7 @@ export default function AddressesPage() {
           <h1 className="text-3xl font-semibold mb-2 text-white">Your Addresses</h1>
         <p className=" text-sm text-gray-200">Manage your delivery or booking addresses here. Save time by setting a default address and keeping everything ready for your next order or stay.</p>
         </section>
-        <section className="bg-white rounded-2xl shadow p-6">
+        <section className="bg-white rounded-2xl shadow p-6 text-black placeholder-black">
           <h2 className="text-lg font-semibold mb-4">New Address</h2>
 
           <form
@@ -173,7 +173,7 @@ export default function AddressesPage() {
           </form>
         </section>
 
-        <section className="bg-white rounded-2xl shadow p-6">
+        <section className="bg-white rounded-2xl shadow p-6 text-black">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Your Addresses</h2>
             {loading && (

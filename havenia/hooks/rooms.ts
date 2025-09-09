@@ -14,6 +14,7 @@ export type Room = {
   // when listing with dates:
   nights?: number;
   est_total?: string; // computed string
+  description?: string;
 };
 
 export type Reservation = {

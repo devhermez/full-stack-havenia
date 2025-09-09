@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import AdminGuard from "@/components/AdminGuard";
-import ClientNav from "@/components/ClientNav";
 import { api } from "@/lib/api";
 import type { AxiosError } from "axios";
 
@@ -13,7 +12,7 @@ type AdminUser = {
   email: string;
   role?: string | null;
   created_at?: string;
-  profile_image_url?: string | null;
+  profile_image_url?: string;
 };
 
 export default function AdminUsersPage() {
@@ -37,8 +36,8 @@ export default function AdminUsersPage() {
 
   return (
     <AdminGuard>
-      <ClientNav />
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      
+      <main className="max-w-6xl mx-auto px-4 py-8 text-black">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Admin · Users</h1>
         </div>
@@ -63,7 +62,7 @@ export default function AdminUsersPage() {
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
                         <img
-                          src={u.profile_image_url || "/avatar-fallback.svg"}
+                          src={u.profile_image_url}
                           alt=""
                           className="h-8 w-8 rounded-full object-cover border"
                         />

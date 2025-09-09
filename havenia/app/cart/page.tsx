@@ -69,11 +69,11 @@ export default function CartPage() {
               ))}
             </ul>
 
-            <div className="mt-4 bg-white rounded-xl shadow p-4 flex items-center justify-between">
-              <div className="font-semibold">
+            <div className="mt-4 bg-white rounded-xl shadow p-4 flex flex-col items-center justify-between">
+              <div className="font-semibold w-full mb-4">
                 Subtotal: {Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(subtotal)}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex justify-between w-full items-center gap-2 text-sm">
                 <button className="border rounded px-3 py-2" onClick={clear} disabled={createOrder.isPending}>
                   Clear
                 </button>
@@ -82,7 +82,7 @@ export default function CartPage() {
                   disabled={createOrder.isPending}
                   onClick={checkoutPickup}
                 >
-                  {createOrder.isPending ? "Placing…" : "Checkout (pickup)"}
+                  {createOrder.isPending ? "Placing…" : "Checkout"}
                 </button>
               </div>
             </div>

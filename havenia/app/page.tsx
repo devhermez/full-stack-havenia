@@ -1,7 +1,7 @@
 // app/page.tsx
 export default function LandingPage() {
   return (
-    <section className="w-screen min-h-[calc(100vh-64px)] flex items-center justify-center bg-gradient-to-b from-neutral-50 to-white">
+    <section className="w-screen min-h-screen flex items-center justify-center bg-gradient-to-b from-neutral-50 to-white">
       <div className="max-w-3xl px-6 text-center">
         <h1 className="text-4xl sm:text-5xl font-bold text-neutral-900">
           Welcome to <span className="text-blue-600">Havenia</span>

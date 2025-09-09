@@ -11,7 +11,7 @@ const PageQuery = z.object({
 export async function listUsers(req: Request, res: Response) {
   const { limit, offset } = PageQuery.parse(req.query);
   const { rows } = await query(
-    `SELECT id, email, name, role, created_at
+    `SELECT id, email, name, role, created_at, profile_image_url
      FROM users
      ORDER BY created_at DESC
      LIMIT :limit OFFSET :offset`,

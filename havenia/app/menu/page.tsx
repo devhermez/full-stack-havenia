@@ -1,3 +1,4 @@
+// app/menu/page.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -16,7 +17,7 @@ type MenuItem = {
   in_stock: boolean;
   image_url: string | null;
   prep_minutes: number | null;
-  category: string | null;
+  category: string | null; // category *name* coming from backend
   property_id: string | null;
   created_at: string;
 };
@@ -30,7 +31,7 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  // --- minimal toast state ---
+  // toast
   const [toast, setToast] = useState<string | null>(null);
   const timerRef = useRef<number | null>(null);
   const showToast = (text: string) => {
@@ -39,28 +40,18 @@ export default function MenuPage() {
     timerRef.current = window.setTimeout(() => setToast(null), 1800);
   };
 
-  const [propertyId, setPropertyId] = useState(search.get("property_id") ?? "");
+  // filters (from URL)
+  const [q, setQ] = useState(search.get("q") ?? "");
   const [category, setCategory] = useState(search.get("category") ?? "");
 
-  const params = useMemo(() => {
-    const p = new URLSearchParams();
-    if (propertyId) p.set("property_id", propertyId);
-    if (category) p.set("category", category);
-    return p.toString();
-  }, [propertyId, category]);
-
+  // fetch once (we'll filter client side so "drinks" works even if BE expects a slug)
   useEffect(() => {
     setLoading(true);
     setErr(null);
     (async () => {
       try {
-        const { data } = await api.get<{ data: MenuItem[] }>("/menu", {
-          params: {
-            property_id: propertyId || undefined,
-            category: category || undefined,
-          },
-        });
-        setItems(data.data);
+        const { data } = await api.get<{ data: MenuItem[] }>("/menu");
+        setItems(data.data ?? []);
       } catch (_e) {
         const ax = _e as AxiosError<any>;
         setErr(
@@ -73,13 +64,35 @@ export default function MenuPage() {
         setLoading(false);
       }
     })();
-  }, [propertyId, category]);
+  }, []);
+
+  // computed filtered list
+  const filtered = useMemo(() => {
+    const qLC = q.trim().toLowerCase();
+    const catLC = category.trim().toLowerCase();
+    return items.filter((it) => {
+      const byName = qLC ? it.name.toLowerCase().includes(qLC) : true;
+      const byCat = catLC
+        ? (it.category ?? "").toLowerCase().includes(catLC)
+        : true;
+      return byName && byCat;
+    });
+  }, [items, q, category]);
+
+  // update URL on submit (optional nicety)
+  function applyFilters(e: React.FormEvent) {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (q.trim()) params.set("q", q.trim());
+    if (category.trim()) params.set("category", category.trim());
+    router.replace(`/menu${params.toString() ? `?${params.toString()}` : ""}`);
+  }
 
   return (
-    <div className="menu-container w-screen min-h-screen bg-amber-700">
+    <div className="menu-container w-screen min-h-screen bg-gradient-to-r from-amber-900 to-amber-500">
       <ClientNav />
 
-      {/* tiny toast */}
+      {/* toast */}
       {toast && (
         <div className="fixed w-75 bottom-6 left-1/2 -translate-x-1/2 z-[60] rounded-md bg-black/85 text-white text-sm px-4 py-2 shadow flex justify-center items-center text-center gap-2">
           {toast}
@@ -91,41 +104,32 @@ export default function MenuPage() {
             stroke="currentColor"
             className="w-5 h-5 text-green-400"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4.5 12.75l6 6 9-13.5"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
         </div>
       )}
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold mb-4 text-white">Menu</h1>
+      <main className="max-w-5xl mx-auto px-8 py-8 md:p-10 lg:px-6 lg:min-w-screen">
+        <h1 className="text-2xl font-semibold mb-2 text-white">Menu</h1>
+        <p className="text-white mb-4 tinos-regular">
+          Discover Havenia’s flavors! Browse our freshly prepared dishes and add your favorites to the cart for a perfect meal.
+        </p>
 
         {/* Filters */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            router.replace(`/menu${params ? `?${params}` : ""}`);
-          }}
-          className="mb-6 grid gap-3 sm:grid-cols-3 text-black"
-        >
+        <form onSubmit={applyFilters} className="mb-6 grid gap-3 sm:grid-cols-3 text-black">
           <input
             className="rounded-lg px-3 py-2 bg-white"
-            placeholder="Property ID (uuid)"
-            value={propertyId}
-            onChange={(e) => setPropertyId(e.target.value)}
+            placeholder="Search dishes by name…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
           />
           <input
             className="rounded-lg px-3 py-2 bg-white"
-            placeholder="Category"
+            placeholder='Category (e.g. "drinks", "dessert")'
             value={category}
             onChange={(e) => setCategory(e.target.value)}
           />
-          <button className="rounded-lg px-4 py-2 bg-white">
-            Apply Filters
-          </button>
+          <button className="rounded-lg px-4 py-2 bg-white">Apply Filters</button>
         </form>
 
         {loading && <p>Loading…</p>}
@@ -133,7 +137,7 @@ export default function MenuPage() {
 
         {!loading && !err && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 text-black">
-            {items.map((it) => {
+            {filtered.map((it) => {
               const priceText = Intl.NumberFormat(undefined, {
                 style: "currency",
                 currency: "USD",
@@ -143,7 +147,7 @@ export default function MenuPage() {
               return (
                 <div
                   key={it.id}
-                  className="rounded-2xl shadow p-4 hover:shadow-md transition  relative bg-cover bg-black/20 bg-blend-overlay text-white"
+                  className="rounded-2xl shadow p-4 hover:shadow-md transition relative bg-cover bg-black/10 bg-blend-overlay text-white lg:bg-center text-shadow-lg"
                   style={bg ? { backgroundImage: bg } : undefined}
                 >
                   <Link href={`/menu/${it.id}`} className="block">
@@ -151,22 +155,18 @@ export default function MenuPage() {
                       <h3 className="font-semibold">{it.name}</h3>
                       <span className="text-sm">{priceText}</span>
                     </div>
-                    {it.category && (
-                      <p className="text-sm mt-1">{it.category}</p>
-                    )}
-                    <p className="text-sm mt-2 line-clamp-2">
-                      {it.description}
-                    </p>
+                    {it.category && <p className="text-sm mt-1">{it.category}</p>}
+                    <p className="text-sm mt-2 line-clamp-2">{it.description}</p>
                   </Link>
 
                   <div className="mt-3 flex items-center justify-between">
                     {!it.in_stock ? (
-                      <span className="text-xs rounded bg-gray-200 px-2 py-0.5">
+                      <span className="text-xs rounded bg-gray-200/90 text-black px-2 py-0.5">
                         Out of stock
                       </span>
                     ) : (
                       <button
-                        className="text-sm rounded-lg border px-3 py-1 hover:bg-neutral-50"
+                        className="text-sm rounded-lg px-3 py-1 bg-white/95 text-black hover:bg-white"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -184,8 +184,11 @@ export default function MenuPage() {
                 </div>
               );
             })}
-            {items.length === 0 && (
-              <p className="text-gray-600">No items match your filters.</p>
+
+            {filtered.length === 0 && (
+              <p className="text-white/90">
+                No items match your filters. Try clearing the search or using a different category term.
+              </p>
             )}
           </div>
         )}

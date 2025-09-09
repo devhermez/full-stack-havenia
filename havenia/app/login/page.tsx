@@ -40,9 +40,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-screen min-h-screen bg-white rounded-2xl shadow p-6 space-y-4 max-w-sm mx-auto flex flex-col justify-center">
+    <div className="w-screen min-h-screen bg-white p-6 space-y-4 max-w-sm mx-auto flex flex-col justify-center">
       
-      <form onSubmit={onSubmit} className="space-y-3 border p-4 rounded-2xl">
+      <form onSubmit={onSubmit} className="space-y-3 p-4 rounded-2xl shadow text-black border border-gray-300">
         <h1 className="text-xl font-semibold">Login</h1>
         <p className="text-sm text-gray-400">Enter your credentials to sign in and continue your Havenia journey.</p>
         <input
@@ -71,7 +71,7 @@ export default function LoginPage() {
         </button>
         <p className="text-sm text-gray-600">
           Don't have an account?{" "}
-          <a href="/login" className="text-blue-600 hover:underline">
+          <a href="/register" className="text-blue-600 hover:underline">
             Register Now!
           </a>
         </p>

@@ -12,10 +12,15 @@ import { stripe, CURRENCY } from "./stripe";
 type Response = import("express").Response;
 
 /* ---------- helpers ---------- */
-function cents(amount: number) {
-  return Math.round(amount * 100);
+
+// Convert a numeric amount in USD to cents (minor units) safely.
+function asUSD(amountLike: string | number): number {
+  const n = typeof amountLike === "string" ? Number(amountLike) : amountLike;
+  if (!Number.isFinite(n)) return 0;
+  return Math.round(n * 100); // cents
 }
 
+const MIN_USD_CENTS = 50; // Stripe minimum charge = $0.50
 const IdParam = z.object({ id: z.uuid() });
 
 /* ---------- Create PI for ORDER ---------- */
@@ -45,12 +50,20 @@ async function createOrderPI(req: AuthedRequest, res: Response) {
     return res.status(404).json({ error: { message: "Order not found" } });
   }
 
-  const amount = Number(o.total);
+  const rawTotal = Number(o.total);
+  if (!Number.isFinite(rawTotal)) {
+    return res.status(400).json({ error: { message: "Invalid order total" } });
+  }
+  const amountInCents = asUSD(rawTotal);
+  if (amountInCents < MIN_USD_CENTS) {
+    return res.status(422).json({ error: { message: "Minimum payment is $0.50" } });
+  }
+
   const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
 
   const pi = await stripe.paymentIntents.create(
     {
-      amount: cents(amount),
+      amount: amountInCents,
       currency: CURRENCY,
       metadata: { kind: "order", order_id: id, user_id: req.user!.id },
       automatic_payment_methods: { enabled: true },
@@ -85,28 +98,34 @@ async function createReservationPI(req: AuthedRequest, res: Response) {
      WHERE r.id = :id::uuid`,
     [{ name: "id", value: id }]
   );
+
   const r = rows[0];
   if (!r || r.user_id !== req.user!.id) {
-    return res
-      .status(404)
-      .json({ error: { message: "Reservation not found" } });
+    return res.status(404).json({ error: { message: "Reservation not found" } });
   }
 
   const nights = Math.floor(
     (Date.parse(r.end_date) - Date.parse(r.start_date)) / (1000 * 60 * 60 * 24)
   );
   if (nights <= 0) {
-    return res
-      .status(400)
-      .json({ error: { message: "Invalid reservation dates" } });
+    return res.status(400).json({ error: { message: "Invalid reservation dates" } });
   }
 
-  const amount = Number(r.price) * nights;
+  const price = Number(r.price);
+  if (!Number.isFinite(price)) {
+    return res.status(400).json({ error: { message: "Invalid reservation amount" } });
+  }
+
+  const amountInCents = asUSD(price * nights);
+  if (amountInCents < MIN_USD_CENTS) {
+    return res.status(422).json({ error: { message: "Minimum payment is $0.50" } });
+  }
+
   const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
 
   const pi = await stripe.paymentIntents.create(
     {
-      amount: cents(amount),
+      amount: amountInCents,
       currency: CURRENCY,
       metadata: {
         kind: "reservation",
@@ -124,7 +143,7 @@ async function createReservationPI(req: AuthedRequest, res: Response) {
   });
 }
 
-// --- Create PI for ACTIVITY BOOKING ---
+/* ---------- Create PI for ACTIVITY BOOKING ---------- */
 async function createActivityBookingPI(req: AuthedRequest, res: Response) {
   const parsed = IdParam.safeParse(req.params);
   if (!parsed.success) {
@@ -132,11 +151,11 @@ async function createActivityBookingPI(req: AuthedRequest, res: Response) {
   }
   const { id } = parsed.data;
 
-  // Pull total & ownership; guests has a DB default of 1 in your setup
+  // Pull total & ownership; guests has a DB default of 1 in this setup
   const { rows } = await query<{
     id: string;
     user_id: string;
-    total: string; // <- numerics come back as strings
+    total: string; // numerics come back as strings
     guests: number | null;
     status: string;
   }>(
@@ -154,18 +173,21 @@ async function createActivityBookingPI(req: AuthedRequest, res: Response) {
     return res.status(400).json({ error: { message: "Booking is canceled" } });
   }
 
-  // If you later set status='confirmed' after payment, you can block re-payment:
-  // if (b.status === "confirmed") return res.status(409).json({ error: { message: "Already paid" } });
-
-  // total already reflects guests in your DB; if not, multiply here.
-  const guests = b.guests ?? 1;
-  const amount = Number(b.total); // if your total is per booking, leave as is
+  // total is per booking in this schema; multiply by guests if your model requires it.
+  const total = Number(b.total);
+  if (!Number.isFinite(total)) {
+    return res.status(400).json({ error: { message: "Invalid booking total" } });
+  }
+  const amountInCents = asUSD(total);
+  if (amountInCents < MIN_USD_CENTS) {
+    return res.status(422).json({ error: { message: "Minimum payment is $0.50" } });
+  }
 
   const idempotencyKey = req.headers["idempotency-key"] as string | undefined;
 
   const pi = await stripe.paymentIntents.create(
     {
-      amount: cents(amount), // to minor units
+      amount: amountInCents,
       currency: CURRENCY,
       metadata: {
         kind: "activity_booking",
@@ -192,7 +214,7 @@ if (!webhookSecret) {
   );
 }
 
-// raw body parser for Stripe webhook — DO NOT export it inline to avoid redeclare issues
+// raw body parser for Stripe webhook — DO NOT mount with express.json()
 const stripeWebhook = express.raw({ type: "application/json" });
 
 async function handleWebhook(req: any, res: Response) {
@@ -213,8 +235,8 @@ async function handleWebhook(req: any, res: Response) {
       if (kind === "activity_booking" && pi.metadata?.booking_id) {
         await query(
           `UPDATE activity_bookings
-       SET status='confirmed', payment_status='paid'
-     WHERE id = :id::uuid`,
+             SET status='confirmed', payment_status='paid'
+           WHERE id = :id::uuid`,
           [{ name: "id", value: pi.metadata.booking_id }]
         );
       }
@@ -236,7 +258,7 @@ async function handleWebhook(req: any, res: Response) {
       }
     }
 
-    // Failure — mark failed/canceled
+    // Failure — mark failed/canceled (best-effort)
     if (event.type === "payment_intent.payment_failed") {
       const pi = event.data.object as Stripe.PaymentIntent;
       const kind = pi.metadata?.kind;
@@ -244,9 +266,9 @@ async function handleWebhook(req: any, res: Response) {
       if (kind === "activity_booking" && pi.metadata?.booking_id) {
         await query(
           `UPDATE activity_bookings
-       SET status='canceled', payment_status='failed'
-     WHERE id = :id::uuid
-       AND status IN ('pending','confirmed')`,
+             SET status='canceled', payment_status='failed'
+           WHERE id = :id::uuid
+             AND status IN ('pending','confirmed')`,
           [{ name: "id", value: pi.metadata.booking_id }]
         );
       }

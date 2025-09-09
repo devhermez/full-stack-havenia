@@ -14,25 +14,32 @@ export default function ActivitiesPage() {
   return (
     <div className="w-screen min-h-screen bg-gradient-to-r from-cyan-500 0 to-blue-600 text-white">
       <ClientNav />
-      <div className="activities-content p-4 flex flex-col w-full min-h-full">
-        <h1 className="text-2xl font-semibold mb-6 ">Activities</h1>
+      <div className="activities-content p-8 flex flex-col w-full min-h-full md:p-8">
+        <div className="px-2">
+          <h1 className="text-2xl font-semibold mb-2 md:text-4xl lg:text-3xl">Activities</h1>
+        <p className="text-white mb-4 tinos-regular">Make every moment unforgettable. Browse our exciting activities and book your next adventure today.</p>
+        </div>
 
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="flex flex-col gap-4 md:flex md:flex-col md:justify-center lg:grid lg:grid-cols-2">
           {data!.map((a) => {
             const price = Number(a.base_price);
             const bg = a.image_url ? `url("${a.image_url}")` : undefined;
             return (
               <li
                 key={a.id}
-                className="rounded-xl border shadow-sm p-4 bg-center bg-cover bg-no-repeat min-h-[220px] w-full"
+                className=" flex flex-col justify-between rounded-xl border shadow-sm p-4 bg-center bg-cover bg-no-repeat min-h-[220px] w-full md:min-h-[440px] md:flex md:flex-col md:justify-between bg-black/10 bg-blend-overlay text-shadow-lg"
                 style={bg ? { backgroundImage: bg } : undefined}
               >
                 {!bg && <div className="absolute inset-0 bg-black" />}
+                <div>
+                  <h2 className="font-medium text-lg md:text-4xl lg:text-2xl tinos-bold">{a.name}</h2>
+                  <p className="text-xs line-clamp-3 md:text-2xl md:w-[50ch] lg:text-sm lg:w-auto">
+                    {a.description}
+                  </p>
+                </div>
 
-                <h2 className="font-medium">{a.name}</h2>
-                <p className="text-sm line-clamp-3">{a.description}</p>
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-sm">
+                  <span className="text-sm md:text-2xl lg:text-lg font-bold">
                     {price.toLocaleString(undefined, {
                       style: "currency",
                       currency: "USD",
@@ -40,7 +47,7 @@ export default function ActivitiesPage() {
                   </span>
                   <Link
                     href={`/activities/${a.id}`}
-                    className="text-sm border rounded px-3 py-1 hover:bg-neutral-50"
+                    className="text-sm border rounded px-3 py-1 hover:bg-neutral-50 md:text-2xl lg:text-sm"
                   >
                     View
                   </Link>

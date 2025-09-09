@@ -1,20 +1,23 @@
-# ---- Build stage ----
-FROM node:20-bookworm AS build
+# --- deps stage: install only production deps
+FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY tsconfig.json ./
-COPY src ./src
-RUN npm run build && npm prune --omit=dev
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
-# ---- Runtime stage ----
-FROM node:20-bookworm AS runner
-ENV NODE_ENV=production
+# --- build stage: install all deps + build TS
+FROM node:20-alpine AS build
 WORKDIR /app
-# Copy only what runtime needs
-COPY --from=build /app/package*.json ./
-COPY --from=build /app/node_modules ./node_modules
+COPY . .
+RUN npm ci && npm run build
+
+# --- runtime stage: minimal, production-only
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production PORT=4000
+RUN apk add --no-cache wget
+COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-# App listens on PORT (default 4000)
 EXPOSE 4000
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:4000/healthz || exit 1
 CMD ["node", "dist/server.js"]

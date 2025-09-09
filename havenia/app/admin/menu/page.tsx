@@ -32,8 +32,8 @@ export default function AdminMenuListPage() {
 
   return (
     <AdminGuard>
-      <ClientNav />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+
+      <main className="max-w-5xl mx-auto px-4 py-8 text-black">
         <div className="mb-4 flex items-center justify-between">
           <h1 className="text-2xl font-semibold">Admin · Menu</h1>
           <Link href="/admin/menu/new" className="rounded-lg border px-4 py-2">Create item</Link>

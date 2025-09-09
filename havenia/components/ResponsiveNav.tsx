@@ -27,8 +27,8 @@ export default function ResponsiveNav({ authed, user, onSignOut }: Props) {
         </Link>
 
         {/* Desktop / Tablet */}
-        <nav className="hidden md:flex items-center gap-4 text-sm">
-          <Link href="/" className="hover:underline">
+        <nav className="hidden md:flex items-center gap-4 text-sm md:pr-4">
+          <Link href="/home" className="hover:underline">
             Home
           </Link>
           <Link href="/menu" className="hover:underline">
@@ -41,7 +41,7 @@ export default function ResponsiveNav({ authed, user, onSignOut }: Props) {
             Rooms
           </Link>
           {user?.role === "admin" && (
-            <Link href="/admin/menu" className="rounded-lg border px-3 py-1">
+            <Link href="/admin" className="rounded-lg border px-3 py-1">
               Admin
             </Link>
           )}
@@ -129,7 +129,7 @@ export default function ResponsiveNav({ authed, user, onSignOut }: Props) {
             </div>
 
             {/* Links */}
-            <Link href="/" onClick={() => setOpen(false)} className="py-2">
+            <Link href="/home" onClick={() => setOpen(false)} className="py-2">
               Home
             </Link>
             <Link href="/menu" onClick={() => setOpen(false)} className="py-2">
@@ -161,7 +161,7 @@ export default function ResponsiveNav({ authed, user, onSignOut }: Props) {
 
             {user?.role === "admin" && (
               <Link
-                href="/admin/menu"
+                href="/admin"
                 onClick={() => setOpen(false)}
                 className="py-2 rounded-lg border px-3"
               >

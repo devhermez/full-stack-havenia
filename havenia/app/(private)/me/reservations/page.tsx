@@ -42,10 +42,14 @@ function Content() {
   }
 
   return (
-    <div className="w-screen min-h-screen bg-gray-600">
+    <div className="w-screen min-h-screen bg-gradient-to-b from-green-700 to-white">
       <ClientNav />
       <div className="px-4 py-6 text-white">
-        <h1 className="text-xl font-semibold mb-4">My Reservations</h1>
+        <h1 className="text-xl font-semibold mb-2">My Reservations</h1>
+        <p className="text-white mb-4 tinos-regular">
+          Plan your perfect stay with ease. View, manage, or pay for your room
+          reservations anytime.
+        </p>
 
         {isLoading && <p>Loading…</p>}
         {error && <p className="text-red-400">Failed to load reservations</p>}
@@ -64,33 +68,25 @@ function Content() {
                 key={r.id}
                 className="bg-white text-black rounded-xl shadow p-4 flex items-center justify-between"
               >
-                <div className="text-md flex flex-col">
-                  <div className="text-lg font-medium">
-                    {r.room_name ?? r.room_id}
-                  </div>
-                  <div className="text-neutral-600 flex flex-col gap-1">
-                    <p>
-                      {r.start_date} → {r.end_date}
-                    </p>
-                    <p>{r.nights} night(s)</p>
-                    <p>Est: {est}</p>
-                  </div>
-
-                  <div className="flex justify-between items-center mt-2 w-75">
+                <div className="text-md flex-col">
+                  <div className="">
+                    <div className="text-lg font-medium">
+                      {r.room_name ?? r.room_id}
+                    </div>
+                    <div className="text-neutral-600 flex flex-col gap-1">
+                      <p>
+                        {r.start_date} → {r.end_date}
+                      </p>
+                      <p>{r.nights} night(s)</p>
+                      <p>Est: {est}</p>
+                    </div>
                     <div className="text-md text-neutral-600 inline-block">
                       <p>Status: {r.status}</p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {r.status !== "canceled" && (
-                        <button
-                          className="text-md border rounded px-3 py-1"
-                          onClick={() => cancelRes.mutate(r.id)}
-                          disabled={cancelRes.isPending}
-                        >
-                          {cancelRes.isPending ? "Canceling…" : "Cancel"}
-                        </button>
-                      )}
+                  </div>
 
+                  <div className="flex justify-between items-center mt-2 w-75">
+                    <div className="flex items-center w-100 justify-between gap-2">
                       {/* Pay only when pending */}
                       {r.status === "pending" && (
                         <button
@@ -101,6 +97,22 @@ function Content() {
                           {createPI.isPending && payingFor === r.id
                             ? "Preparing…"
                             : "Pay"}
+                        </button>
+                      )}
+                      {/* NEW: View details */}
+                      <Link
+                        href={`/me/reservations/${r.id}`}
+                        className="text-md border rounded px-3 py-1 hover:bg-black hover:text-white transition"
+                      >
+                        View
+                      </Link>
+                      {r.status !== "canceled" && (
+                        <button
+                          className="text-md border rounded px-3 py-1"
+                          onClick={() => cancelRes.mutate(r.id)}
+                          disabled={cancelRes.isPending}
+                        >
+                          {cancelRes.isPending ? "Canceling…" : "Cancel"}
                         </button>
                       )}
                     </div>
@@ -118,7 +130,10 @@ function Content() {
           <div className="w-full md:max-w-md md:rounded-2xl bg-white p-4 shadow-xl">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold">Complete payment</h2>
-              <button onClick={closePay} className="rounded border px-2 py-1 text-sm">
+              <button
+                onClick={closePay}
+                className="rounded border px-2 py-1 text-sm"
+              >
                 Close
               </button>
             </div>
