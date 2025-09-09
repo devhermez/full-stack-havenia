@@ -1,7 +1,7 @@
 // app/menu/page.tsx
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ClientNav from "@/components/ClientNav";
 import { api } from "@/lib/api";
@@ -22,7 +22,7 @@ type MenuItem = {
   created_at: string;
 };
 
-export default function MenuPage() {
+function MenuInner() {
   const { add } = useCart();
   const search = useSearchParams();
   const router = useRouter();
@@ -44,7 +44,7 @@ export default function MenuPage() {
   const [q, setQ] = useState(search.get("q") ?? "");
   const [category, setCategory] = useState(search.get("category") ?? "");
 
-  // fetch once (we'll filter client side so "drinks" works even if BE expects a slug)
+  // fetch once (client-side filtering handles free-text like "drinks")
   useEffect(() => {
     setLoading(true);
     setErr(null);
@@ -147,7 +147,7 @@ export default function MenuPage() {
               return (
                 <div
                   key={it.id}
-                  className="rounded-2xl shadow p-4 hover:shadow-md transition relative bg-cover bg-black/10 bg-blend-overlay text-white lg:bg-center text-shadow-lg"
+                  className="rounded-2xl shadow p-4 hover:shadow-md transition relative bg-cover bg-black/10 bg-blend-overlay text-white lg:bg-center"
                   style={bg ? { backgroundImage: bg } : undefined}
                 >
                   <Link href={`/menu/${it.id}`} className="block">
@@ -196,3 +196,14 @@ export default function MenuPage() {
     </div>
   );
 }
+
+export default function MenuPage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-white">Loading menu…</div>}>
+      <MenuInner />
+    </Suspense>
+  );
+}
+
+// Ensure Vercel treats this as dynamic (no static prerender issues)
+export const dynamic = "force-dynamic";
