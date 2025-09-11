@@ -40,6 +40,9 @@ export default function ResponsiveNav({ authed, user, onSignOut }: Props) {
           <Link href="/rooms" className="hover:underline">
             Rooms
           </Link>
+          <Link href="/cart" className="hover:underline">
+            Cart
+          </Link>
           {user?.role === "admin" && (
             <Link href="/admin" className="rounded-lg border px-3 py-1">
               Admin
