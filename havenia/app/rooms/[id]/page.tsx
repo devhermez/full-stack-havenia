@@ -31,7 +31,7 @@ export default function RoomDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="w-screen bg-amber-800 min-h-screen">
+    <div className="w-screen bg-gradient-to-b from-green-700 to-white min-h-screen">
       <ClientNav />
       <div className="px-4 py-28">
         {isLoading && <p>Loading…</p>}
