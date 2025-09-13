@@ -21,7 +21,7 @@ export default function ResponsiveNav({ authed, user, onSignOut }: Props) {
 
   return (
     <header className="top-0 z-40 text-white bg-transparent pt-4 pl-2 pr-2">
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+      <div className="mx-auto flex h-14 items-center justify-between px-4">
         <Link href="/" className="font-semibold">
           <img className="w-[80px]" src="/image.png" alt="" />
         </Link>
