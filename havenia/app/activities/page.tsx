@@ -32,14 +32,14 @@ export default function ActivitiesPage() {
               >
                 {!bg && <div className="absolute inset-0 bg-black" />}
                 <div>
-                  <h2 className="font-medium text-lg md:text-4xl lg:text-2xl tinos-bold">{a.name}</h2>
-                  <p className="text-xs line-clamp-3 md:text-2xl md:w-[50ch] lg:text-sm lg:w-auto">
+                  <h2 className="font-medium text-lg md:text-3xl lg:text-2xl tinos-bold">{a.name}</h2>
+                  <p className="text-xs line-clamp-3 md:lg md:w-[50ch] lg:text-sm lg:w-auto">
                     {a.description}
                   </p>
                 </div>
 
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-sm md:text-2xl lg:text-lg font-bold">
+                  <span className="text-sm md:text-lg lg:text-lg font-bold">
                     {price.toLocaleString(undefined, {
                       style: "currency",
                       currency: "USD",
@@ -47,7 +47,7 @@ export default function ActivitiesPage() {
                   </span>
                   <Link
                     href={`/activities/${a.id}`}
-                    className="text-sm border rounded px-3 py-1 hover:bg-neutral-50 md:text-2xl lg:text-sm"
+                    className="text-sm border rounded px-3 py-1 hover:bg-neutral-50 md:text-lg lg:text-sm"
                   >
                     View
                   </Link>
