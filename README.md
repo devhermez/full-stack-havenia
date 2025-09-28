@@ -1,4 +1,4 @@
-## Havenia – Full-Stack + Cloud Native 
+## Havenia – Full-Stack | Cloud Native 
 
 A multi-brand hospitality platform featuring room reservations, activity booking, and food ordering systems 
 built with Next.js (TypeScript) and Express.js, powered by PostgreSQL on AWS RDS with a Dockerized backend and Stripe payments. 
@@ -15,7 +15,7 @@ Deployed across AWS services including EC2, ECR, API Gateway, S3, and VPC, with 
 - Static assets hosting via Amazon S3 
 - CI/CD workflow with containerized backend (Docker) deployed to AWS EC2 inside a VPC
 - Prompt-engineered assets with Generative AI for products and imagery assets
-- Front-End deployment on Vercel, back-end deploment using Docker + AWS services
+- Front-End deployment on Vercel, back-end deployment using Docker + AWS services
 - API exposed securely through AWS API Gateway with full CORS configuration
 - Built using Next.js App Router with dynamic, reusable components
 - Monitoring with HTTP logger and health checks (API + Docker)
