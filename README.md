@@ -23,31 +23,8 @@ Deployed across AWS services including EC2, ECR, API Gateway, S3, and VPC, with 
 - Responsive Web Design (Desktop, Tablet, Mobile)
 
 ### 🛠 Tech Stack
-**Next.js  
-React  
-Tailwind  
-TypeScript  
-Express.js  
-REST API  
-Node.js  
-JWT  
-Rate Limit  
-Aurora RDS  
-Stripe  
-Helmet  
-Vercel  
-PostgreSQL  
-S3  
-Docker  
-EC2  
-ECS  
-Logger  
-API Gateway  
-CORS  
-VPC  
-ECR  
-Zod  
-AWS SDK**
+**Next.js, React, Tailwind, TypeScript, Express.js, REST API, Node.js, JWT, Rate Limit, Aurora RDS, Stripe, Helmet, 
+Vercel, PostgreSQL, S3, Docker, EC2, ECS, Logger, API Gateway, CORS, VPC, ECR, Zod, AWS SDK**
 
 ### 🌐 VISIT WEBSITE
 🔗 [https://full-stack-havenia.vercel.app]
