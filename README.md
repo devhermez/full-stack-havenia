@@ -26,7 +26,6 @@ Deployed across AWS services including EC2, ECR, API Gateway, S3, and VPC, with 
 **Next.js, React, Tailwind, TypeScript, Express.js, REST API, Node.js, JWT, Rate Limit, Aurora RDS, Stripe, Helmet, 
 Vercel, PostgreSQL, S3, Docker, EC2, ECS, Logger, API Gateway, CORS, VPC, ECR, Zod, AWS SDK**
 
-Note: This project is currently deployed on AWS with cost-saving measures applied; backend and database services may occasionally be paused.
-Occasional Demo Hours: 9:00am - 5:00pm
-
+Note: This project is currently deployed on AWS with cost-saving measures applied; backend and database services may occasionally be paused.<br>
+Occasional Demo Hours: 9:00am - 5:00pm<br>
 🔗 [https://full-stack-havenia.vercel.app]
