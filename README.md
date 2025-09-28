@@ -27,7 +27,6 @@ Deployed across AWS services including EC2, ECR, API Gateway, S3, and VPC, with 
 Vercel, PostgreSQL, S3, Docker, EC2, ECS, Logger, API Gateway, CORS, VPC, ECR, Zod, AWS SDK**
 
 Note: This project is currently deployed on AWS with cost-saving measures applied; backend and database services may occasionally be paused.
-
 Occasional Demo Hours: 9:00am - 5:00pm
 
 🔗 [https://full-stack-havenia.vercel.app]
